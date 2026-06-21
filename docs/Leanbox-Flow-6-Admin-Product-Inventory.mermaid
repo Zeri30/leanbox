@@ -1,0 +1,30 @@
+flowchart TD
+    Start([Admin -> Product management]) --> Action{What to do?}
+
+    Action -- Add --> New[New product form]
+    New --> Fill[Name, description, price, category,<br/>stock, nutrition facts]
+    Fill --> Img[Upload images to Cloudinary]
+    Img --> Flags[Set featured / best-selling]
+    Flags --> Save[Save product -> appears in catalog]
+
+    Action -- Edit --> Find[Search / filter products]
+    Find --> EditForm[Edit fields, images, price, stock]
+    EditForm --> Save
+
+    Action -- Remove --> Find2[Find discontinued product]
+    Find2 --> Soft[Soft-delete: is_active = false]
+    Soft --> Hidden[Hidden from storefront,<br/>order history preserved]
+
+    Action -- Inventory --> Stock[Adjust stock quantity]
+    Stock --> Check{stock <= low_stock_threshold?}
+    Save --> Catalog([Catalog updated])
+    Check -- Yes --> Alert[Low-stock alert notification]
+    Check -- No --> OK[No alert]
+    Alert --> Replenish[Admin replenishes stock] --> Stock
+    OK --> Catalog
+    Hidden --> Catalog
+
+    subgraph AUTO["Automatic stock events"]
+        Order[Order confirmed / recurring delivery] --> Dec[Decrement stock]
+        Dec --> Check
+    end

@@ -1,0 +1,34 @@
+# ── Monorepo root safety net ──
+# Each app (backend/, frontend/) has its own .gitignore for app-specific paths.
+# This root file covers OS/editor cruft and acts as a backstop for secrets.
+
+# Secrets — never commit, regardless of location
+.env
+.env.*
+!.env.example
+
+# Dependencies (backstop; app gitignores also cover these)
+**/node_modules/
+**/vendor/
+
+# Build / framework output
+**/.next/
+**/dist/
+**/build/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*~
+
+# Logs
+*.log
+npm-debug.log*

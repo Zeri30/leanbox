@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leanbox — Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#0E1311; --bg-surface:#161C1A; --bg-elevated:#1E2624;
+    --border:#2A332F; --border-strong:#3A463F;
+    --primary:#22C55E; --primary-hover:#16A34A; --primary-soft:#0F2E1F; --accent-lime:#A3E635;
+    --text-primary:#F1F5F4; --text-secondary:#9CA8A3; --text-muted:#6B7772;
+    --success:#22C55E; --warning:#F59E0B; --error:#EF4444; --info:#38BDF8;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg-base);color:var(--text-secondary);font-family:'Inter',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+  h1,h2,h3,.display{font-family:'Sora',sans-serif;color:var(--text-primary)}
+  .display{font-size:40px;line-height:1.1;font-weight:700}
+  h1{font-size:32px;font-weight:700;margin-bottom:4px}
+  h2{font-size:24px;font-weight:600;margin:0 0 16px}
+  h3{font-size:20px;font-weight:600}
+  .muted{color:var(--text-muted)}
+  .sec{margin-top:48px;border-top:1px solid var(--border);padding-top:32px}
+  .sub{color:var(--text-secondary);font-size:14px;margin-bottom:20px}
+  .grid{display:grid;gap:16px}
+  /* header */
+  .topnav{display:flex;align-items:center;justify-content:space-between;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Sora';font-weight:700;color:var(--text-primary);font-size:18px}
+  .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--accent-lime));display:grid;place-items:center;color:#06210F;font-weight:700}
+  .navlinks{display:flex;gap:18px;font-size:14px}
+  .navlinks a{color:var(--text-secondary);text-decoration:none}
+  .navlinks a.active{color:var(--primary)}
+  .navright{display:flex;gap:10px;align-items:center}
+  /* color swatches */
+  .swatches{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .swatch{background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .chip{height:64px}
+  .swatch .meta{padding:10px 12px;font-size:12px}
+  .swatch .name{color:var(--text-primary);font-weight:600;font-size:13px}
+  /* type scale */
+  .typerow{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px dashed var(--border)}
+  .typerow .tag{width:90px;color:var(--text-muted);font-size:12px;flex:none}
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;border:1px solid transparent;font-family:'Inter'}
+  .btn-primary{background:var(--primary);color:#06210F;box-shadow:0 0 0 1px #22C55E33,0 8px 24px -8px #22C55E88}
+  .btn-primary:hover{background:var(--primary-hover)}
+  .btn-secondary{background:transparent;border-color:var(--border-strong);color:var(--text-primary)}
+  .btn-secondary:hover{background:var(--bg-elevated)}
+  .btn-ghost{background:transparent;color:var(--text-secondary)}
+  .btn-danger{background:transparent;border-color:var(--error);color:var(--error)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  /* badges */
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  .badge-cat{background:var(--primary-soft);color:var(--primary)}
+  .badge-feat{background:rgba(163,230,53,.12);color:var(--accent-lime)}
+  .badge-low{background:rgba(245,158,11,.12);color:var(--warning)}
+  .badge-out{background:rgba(239,68,68,.12);color:var(--error)}
+  .badge-ok{background:rgba(34,197,94,.12);color:var(--success)}
+  .badge-info{background:rgba(56,189,248,.12);color:var(--info)}
+  /* input */
+  .field{max-width:340px}
+  label{display:block;font-size:13px;color:var(--text-secondary);margin-bottom:6px}
+  input.inp{width:100%;height:44px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);padding:0 14px;font-size:15px;font-family:'Inter';outline:none}
+  input.inp::placeholder{color:var(--text-muted)}
+  input.inp:focus{border-color:var(--primary);box-shadow:0 0 0 3px #22C55E40}
+  /* product card */
+  .cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:10px}
+  .thumb{aspect-ratio:4/3;border-radius:12px;background:linear-gradient(135deg,#1E2624,#0F2E1F);display:grid;place-items:center;color:var(--text-muted);font-size:13px;position:relative;overflow:hidden}
+  .thumb .leaf{font-size:40px}
+  .ptitle{color:var(--text-primary);font-weight:600;font-size:16px}
+  .price{color:var(--text-primary);font-weight:700;font-size:18px}
+  .stars{color:var(--accent-lime);font-size:13px}
+  .between{display:flex;justify-content:space-between;align-items:center}
+  .full{width:100%}
+  @media(max-width:560px){.display{font-size:32px}h1{font-size:28px}.navlinks{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topnav">
+    <div class="brand"><span class="logo">L</span> Leanbox</div>
+    <div class="navlinks">
+      <a class="active" href="#">Shop</a><a href="#">Vegetarian</a><a href="#">High-Protein</a>
+      <a href="#">Supplements</a><a href="#">Subscriptions</a>
+    </div>
+    <div class="navright">
+      <button class="btn btn-ghost" style="height:38px">Search</button>
+      <button class="btn btn-secondary" style="height:38px">Cart</button>
+      <button class="btn btn-primary" style="height:38px">Sign in</button>
+    </div>
+  </div>
+
+  <div style="margin-top:32px">
+    <p class="muted" style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)">Style Guide</p>
+    <div class="display">Eat lean. Live strong.</div>
+    <p class="sub" style="max-width:560px;margin-top:8px">This page is the visual source of truth for Leanbox — the dark theme, green accents, typography, and core components your site will be built from. Open it in any browser.</p>
+    <div class="row"><button class="btn btn-primary">Shop now</button><button class="btn btn-secondary">View plans</button></div>
+  </div>
+
+  <!-- COLORS -->
+  <div class="sec">
+    <h2>Color palette</h2>
+    <p class="sub">Dark surfaces with a single confident green accent. Green = action & health.</p>
+    <div class="grid swatches">
+      <div class="swatch"><div class="chip" style="background:#0E1311"></div><div class="meta"><div class="name">bg.base</div><div class="muted">#0E1311</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#161C1A"></div><div class="meta"><div class="name">bg.surface</div><div class="muted">#161C1A</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#1E2624"></div><div class="meta"><div class="name">bg.elevated</div><div class="muted">#1E2624</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#2A332F"></div><div class="meta"><div class="name">border</div><div class="muted">#2A332F</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#22C55E"></div><div class="meta"><div class="name">primary</div><div class="muted">#22C55E</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#16A34A"></div><div class="meta"><div class="name">primary.hover</div><div class="muted">#16A34A</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#0F2E1F"></div><div class="meta"><div class="name">primary.soft</div><div class="muted">#0F2E1F</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#A3E635"></div><div class="meta"><div class="name">accent.lime</div><div class="muted">#A3E635</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F1F5F4"></div><div class="meta"><div class="name">text.primary</div><div class="muted">#F1F5F4</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#9CA8A3"></div><div class="meta"><div class="name">text.secondary</div><div class="muted">#9CA8A3</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F59E0B"></div><div class="meta"><div class="name">warning</div><div class="muted">#F59E0B</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#EF4444"></div><div class="meta"><div class="name">error</div><div class="muted">#EF4444</div></div></div>
+    </div>
+  </div>
+
+  <!-- TYPE -->
+  <div class="sec">
+    <h2>Typography</h2>
+    <p class="sub">Sora for headings (premium, geometric). Inter for body & UI.</p>
+    <div class="typerow"><span class="tag">Display</span><span class="display">Eat lean</span></div>
+    <div class="typerow"><span class="tag">H1</span><h1 style="margin:0">Page title</h1></div>
+    <div class="typerow"><span class="tag">H2</span><h2 style="margin:0">Section header</h2></div>
+    <div class="typerow"><span class="tag">H3</span><h3>Card title</h3></div>
+    <div class="typerow"><span class="tag">Body</span><span style="color:var(--text-primary)">The quick brown fox jumps over 16px body copy.</span></div>
+    <div class="typerow"><span class="tag">Small</span><span style="font-size:14px">14px label / meta text</span></div>
+    <div class="typerow"><span class="tag">Caption</span><span style="font-size:12px;font-weight:500">12px CAPTION</span></div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="sec">
+    <h2>Buttons</h2>
+    <p class="sub">One primary action per screen. 44px tall for comfortable tapping.</p>
+    <div class="row">
+      <button class="btn btn-primary">Add to cart</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-ghost">Ghost</button>
+      <button class="btn btn-danger">Cancel order</button>
+      <button class="btn btn-primary" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="sec">
+    <h2>Badges & status</h2>
+    <p class="sub">Status colors map across products, orders, and deliveries.</p>
+    <div class="row">
+      <span class="badge badge-cat">Vegetarian</span>
+      <span class="badge badge-feat">★ Featured</span>
+      <span class="badge badge-ok">In stock</span>
+      <span class="badge badge-low">Low stock</span>
+      <span class="badge badge-out">Out of stock</span>
+      <span class="badge badge-info">Out for delivery</span>
+      <span class="badge badge-ok">Delivered</span>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="sec">
+    <h2>Form input</h2>
+    <div class="field">
+      <label>Email</label>
+      <input class="inp" placeholder="you@email.com">
+    </div>
+    <p class="muted" style="font-size:12px;margin-top:8px">Focus state uses a green ring. Click the field to see it.</p>
+  </div>
+
+  <!-- PRODUCT CARDS -->
+  <div class="sec">
+    <h2>Product cards</h2>
+    <p class="sub">The repeating unit of the catalog. Image, category, title, price, rating, primary action.</p>
+    <div class="grid cards">
+      <div class="card">
+        <div class="thumb"><span class="leaf">🥗</span></div>
+        <span class="badge badge-cat" style="align-self:flex-start">Vegetarian</span>
+        <div class="ptitle">Garden Power Bowl</div>
+        <div class="stars">★★★★★ <span class="muted" style="font-size:12px">(128)</span></div>
+        <div class="between"><span class="price">₱220</span><span class="badge badge-ok">In stock</span></div>
+        <button class="btn btn-primary full">Add to cart</button>
+      </div>
+      <div class="card">
+        <div class="thumb"><span class="leaf">💪</span></div>
+        <span class="badge badge-feat" style="align-self:flex-start">★ Featured</span>
+        <div class="ptitle">High-Protein Chicken Box</div>
+        <div class="stars">★★★★☆ <span class="muted" style="font-size:12px">(86)</span></div>
+        <div class="between"><span class="price">₱310</span><span class="badge badge-low">Low stock</span></div>
+        <button class="btn btn-primary full">Add to cart</button>
+      </div>
+      <div class="card">
+        <div class="thumb"><span class="leaf">🥤</span></div>
+        <span class="badge badge-cat" style="align-self:flex-start">Supplement</span>
+        <div class="ptitle">Whey Isolate — Vanilla</div>
+        <div class="stars">★★★★★ <span class="muted" style="font-size:12px">(204)</span></div>
+        <div class="between"><span class="price">₱1,450</span><span class="badge badge-out">Out of stock</span></div>
+        <button class="btn btn-secondary full">Notify me</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted" style="margin-top:48px;font-size:12px;text-align:center">Leanbox design system · dark + green · mobile-first · built for React + Tailwind</p>
+</div>
+</body>
+</html>

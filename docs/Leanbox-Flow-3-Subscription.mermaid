@@ -1,0 +1,31 @@
+flowchart TD
+    Start([Customer wants meal-prep]) --> Plans[Browse subscription plans]
+    Plans --> Pick[Choose plan:<br/>meal type, price, billing interval]
+    Pick --> Sched[Choose delivery schedule<br/>+ delivery address]
+    Sched --> AuthGate{Logged in?}
+    AuthGate -- No --> Login[Login or register] --> Setup
+    AuthGate -- Yes --> Setup
+
+    Setup[Create subscription via Stripe/Cashier] --> FirstPay{First charge ok?}
+    FirstPay -- Failed --> PayFail[Show error] --> Pick
+    FirstPay -- Success --> Active[Subscription = Active<br/>set next_delivery_date]
+    Active --> NotiA[Confirmation notification]
+
+    NotiA --> Cycle{{Recurring cycle - scheduled job}}
+    Cycle --> Bill[Cashier charges next cycle]
+    Bill --> BillRes{Charge result}
+    BillRes -- Success --> Record[Write subscription_payment<br/>generate delivery] --> Renew[Renewal notification] --> Cycle
+    BillRes -- Failed --> Retry[Dunning: retry / notify customer]
+    Retry --> Resolved{Resolved?}
+    Resolved -- Yes --> Record
+    Resolved -- No --> PastDue[Mark past due / pause] --> Manage
+
+    Active --> Manage[Manage subscription]
+    Manage --> M1[Pause: stop billing & deliveries]
+    Manage --> M2[Resume: reactivate + reschedule]
+    Manage --> M3[Cancel: stop future cycles]
+    Manage --> M4[View history & status]
+    M1 --> Paused([Paused])
+    Paused --> M2
+    M2 --> Active
+    M3 --> Cancelled([Cancelled - no future billing])

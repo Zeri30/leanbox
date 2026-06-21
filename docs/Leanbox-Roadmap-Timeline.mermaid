@@ -1,0 +1,43 @@
+gantt
+    title Leanbox Development Timeline (~15 weeks, 1 dev w/ Claude Code)
+    dateFormat YYYY-MM-DD
+    axisFormat Wk %W
+
+    section Planning & Design
+    Blueprint approved (M0)      :milestone, m0, 2026-07-06, 0d
+    Finalize UI/UX               :done, ux, 2026-07-06, 5d
+
+    section Database
+    Schema, models, seed         :db, 2026-07-06, 10d
+    Database live (M1)           :milestone, m1, 2026-07-17, 0d
+
+    section Backend
+    Auth & users                 :be1, 2026-07-13, 9d
+    Catalog & products           :be2, 2026-07-20, 9d
+    Cart, checkout & orders       :be3, 2026-07-27, 9d
+    Core commerce API (M2)        :milestone, m2, 2026-08-07, 0d
+    Payments (GCash/card)         :be4, 2026-08-03, 9d
+    Subscriptions & billing       :be5, 2026-08-10, 9d
+    Payments+subs done (M3)       :milestone, m3, 2026-08-21, 0d
+    Deliveries, reviews, notifs   :be6, 2026-08-17, 9d
+
+    section Frontend
+    Setup + shared components     :fe1, 2026-07-27, 9d
+    Storefront & product pages    :fe2, 2026-08-03, 14d
+    Cart, checkout, confirmation  :fe3, 2026-08-17, 9d
+    Storefront usable (M4)        :milestone, m4, 2026-08-28, 0d
+    Customer account              :fe4, 2026-08-24, 9d
+    Admin dashboard               :fe5, 2026-08-31, 10d
+    Rider view + polish           :fe6, 2026-09-10, 9d
+    All surfaces done (M5)        :milestone, m5, 2026-09-19, 0d
+
+    section Testing & QA
+    Tests, E2E, security, UAT     :qa, 2026-09-07, 28d
+    QA passed (M6)                :milestone, m6, 2026-10-05, 0d
+
+    section Deployment
+    Provision, CI/CD, launch      :dep, 2026-10-05, 9d
+    Launch (M7)                   :milestone, m7, 2026-10-14, 0d
+
+    section Maintenance
+    Monitor & enhance             :maint, 2026-10-14, 14d

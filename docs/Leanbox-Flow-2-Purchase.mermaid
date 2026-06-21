@@ -1,0 +1,39 @@
+flowchart TD
+    Start([Customer on storefront]) --> Browse[Browse products]
+    Browse --> Discover{How to find items?}
+    Discover -- Category --> Cat[Filter by category:<br/>veg, high-protein, supplements, snacks, wellness]
+    Discover -- Search --> Search[Search by name]
+    Discover -- Featured --> Home[Homepage featured / best-sellers]
+    Cat --> PDP
+    Search --> PDP
+    Home --> PDP
+
+    PDP[Product detail:<br/>nutrition, price, stock, images, reviews] --> InStock{In stock?}
+    InStock -- No --> Notify[Show out-of-stock] --> Browse
+    InStock -- Yes --> Add[Add to cart<br/>snapshot price]
+    Add --> More{Continue shopping?}
+    More -- Yes --> Browse
+    More -- No --> Cart[View cart:<br/>update qty / remove / subtotal]
+
+    Cart --> AuthGate{Logged in?}
+    AuthGate -- No --> Login[Login or register] --> Checkout
+    AuthGate -- Yes --> Checkout
+
+    Checkout[Checkout] --> Ship[Enter / select delivery address]
+    Ship --> Pay{Choose payment method}
+    Pay -- GCash --> GC[PayMongo/Xendit redirect]
+    Pay -- Card --> ST[Stripe payment]
+    Pay -- COD --> CODset[Mark COD]
+
+    GC --> PayRes{Payment result}
+    ST --> PayRes
+    PayRes -- Failed --> PayFail[Show failure, keep cart] --> Pay
+    PayRes -- Success --> Confirm
+    CODset --> Confirm
+
+    Confirm[Create order: status = Pending<br/>validate & decrement stock] --> NotiC[Notify customer + admin]
+    NotiC --> LowChk{Stock <= threshold?}
+    LowChk -- Yes --> LowAlert[Low-stock alert to admin]
+    LowChk -- No --> Track
+    LowAlert --> Track
+    Track[Customer can view order status / cancel while Pending] --> End([Order placed])

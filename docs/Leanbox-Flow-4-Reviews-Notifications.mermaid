@@ -1,0 +1,27 @@
+flowchart TD
+    subgraph REVIEWS["Reviews & Ratings"]
+        R0([Customer opens an order]) --> RDeliv{Order delivered?}
+        RDeliv -- No --> RWait[Review not yet available] --> R0
+        RDeliv -- Yes --> RWrite[Rate 1-5 + write comment]
+        RWrite --> RSave[Save review<br/>linked to user, product, order]
+        RSave --> RShow[Review visible on product page]
+        RShow --> RMine[Customer can view own reviews]
+        RShow --> RMod{Admin moderation}
+        RMod -- Inappropriate --> RHide[Hide review<br/>is_hidden = true]
+        RMod -- OK --> RKeep[Remains public]
+        RHide --> RStats[Feeds review statistics]
+        RKeep --> RStats
+    end
+
+    subgraph NOTI["Notifications"]
+        E([Domain event]) --> EType{Event type}
+        EType -- Order status change --> NU[Notify customer]
+        EType -- Subscription renewal --> NU
+        EType -- Promotion --> NPromo[Notify opted-in customers]
+        EType -- New order / subscription --> NA[Notify admin]
+        EType -- Low stock --> NA
+        NU --> Dispatch[Write in-app notification<br/>+ optional email]
+        NPromo --> Dispatch
+        NA --> Dispatch
+        Dispatch --> Read[Recipient views -> mark as read]
+    end

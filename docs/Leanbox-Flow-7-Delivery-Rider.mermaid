@@ -1,0 +1,22 @@
+flowchart TD
+    Trigger{Delivery source} -- Order ready --> Create[Admin creates delivery<br/>for the order]
+    Trigger -- Subscription cycle due --> Create2[System/admin creates delivery<br/>for the cycle]
+    Create --> Assign
+    Create2 --> Assign
+
+    Assign[Admin assigns a rider] --> NotiR[Notify rider: new delivery]
+    NotiR --> RiderView[Rider opens 'My Deliveries'<br/>sees only assigned]
+    RiderView --> Pick[Rider picks up items]
+    Pick --> OFD[Mark Out for delivery]
+    OFD --> NotiC1[Notify customer: on the way]
+    NotiC1 --> Attempt{Delivery attempt}
+
+    Attempt -- Success --> Proof[Mark Delivered<br/>upload proof photo + notes]
+    Proof --> Sync[Order status -> Delivered]
+    Sync --> NotiC2[Notify customer: delivered]
+    NotiC2 --> Review[Customer can now review] --> End([Delivered])
+
+    Attempt -- Failed --> Fail[Mark Failed + reason]
+    Fail --> Reassign{Admin action}
+    Reassign -- Reassign --> Assign
+    Reassign -- Retry later --> RiderView

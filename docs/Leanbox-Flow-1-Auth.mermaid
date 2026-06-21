@@ -1,0 +1,27 @@
+flowchart TD
+    Start([Visitor arrives]) --> HasAcct{Has an account?}
+
+    HasAcct -- No --> Reg[Open Register]
+    Reg --> RegForm[Enter name, email, password]
+    RegForm --> RegValid{Valid & email unique?}
+    RegValid -- No --> RegErr[Show validation error] --> RegForm
+    RegValid -- Yes --> CreateUser[Create customer account<br/>hash password]
+    CreateUser --> Welcome[Send welcome notification] --> LoggedIn
+
+    HasAcct -- Yes --> Login[Open Login]
+    Login --> Creds[Enter email & password]
+    Creds --> AuthChk{Credentials valid?}
+    AuthChk -- No --> LoginErr[Show generic error] --> Creds
+    AuthChk -- Yes --> StatusChk{Account status?}
+    StatusChk -- Suspended --> Blocked[Block + show suspended message] --> Login
+    StatusChk -- Active --> IssueToken[Issue Sanctum token] --> LoggedIn
+
+    LoggedIn([Authenticated session]) --> Account[Account area]
+    Account --> A1[Update profile info]
+    Account --> A2[Change password]
+    Account --> A3[Logout - revoke token]
+    A1 --> Saved[Save & confirm]
+    A2 --> PwChk{Current password ok?}
+    PwChk -- No --> PwErr[Error] --> A2
+    PwChk -- Yes --> Saved
+    A3 --> End([Session ended])

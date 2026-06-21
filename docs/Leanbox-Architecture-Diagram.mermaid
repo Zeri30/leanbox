@@ -1,0 +1,69 @@
+flowchart TB
+    subgraph CLIENT["Client Layer"]
+        SF["Storefront (Next.js + Tailwind)<br/>browse, cart, checkout, subscriptions"]
+        AD["Admin Dashboard (Next.js + Tailwind)<br/>products, orders, deliveries, analytics"]
+        RD["Rider View (mobile-first)<br/>my deliveries, proof of delivery"]
+    end
+
+    subgraph EDGE["Edge / Delivery"]
+        CDN["CDN + Image Optimization<br/>(Vercel / Cloudinary)"]
+    end
+
+    subgraph API["Application Layer — Laravel REST API"]
+        GW["API Gateway / Router"]
+        AUTH["Auth Module<br/>Sanctum tokens, RBAC"]
+        PROD["Catalog Service<br/>products, categories, nutrition"]
+        CART["Cart & Checkout Service"]
+        ORD["Order Service<br/>status lifecycle"]
+        SUB["Subscription Service<br/>plans, recurring billing"]
+        DLV["Delivery Service<br/>assign riders, proof of delivery"]
+        PAY["Payment Service"]
+        INV["Inventory Service<br/>stock + low-stock alerts"]
+        REV["Reviews Service"]
+        NOTI["Notification Service"]
+    end
+
+    subgraph DATA["Data Layer"]
+        PG[("PostgreSQL<br/>(Eloquent ORM)")]
+        REDIS[("Redis<br/>cache + sessions + queues")]
+        BLOB["Object Storage<br/>product images (S3 / Cloudinary)"]
+    end
+
+    subgraph EXTERNAL["External Integrations"]
+        STRIPE["Stripe (Cashier)<br/>cards + subscriptions"]
+        GCASH["PayMongo / Xendit<br/>GCash (PH)"]
+        MAIL["Email/SMS<br/>(Resend / Twilio)"]
+    end
+
+    SF --> CDN --> GW
+    AD --> CDN
+    AD --> GW
+    RD --> GW
+    GW --> AUTH
+    GW --> PROD & CART & ORD & SUB & DLV & PAY & INV & REV & NOTI
+
+    PROD --> PG
+    CART --> PG
+    ORD --> PG
+    SUB --> PG
+    DLV --> PG
+    PAY --> PG
+    INV --> PG
+    REV --> PG
+    NOTI --> PG
+
+    PROD --> REDIS
+    CART --> REDIS
+    NOTI --> REDIS
+    PROD --> BLOB
+
+    PAY --> STRIPE
+    PAY --> GCASH
+    SUB --> STRIPE
+    NOTI --> MAIL
+    INV -. "low-stock event" .-> NOTI
+    ORD -. "order event" .-> NOTI
+    SUB -. "renewal event" .-> NOTI
+    DLV -. "delivery assigned / delivered" .-> NOTI
+    ORD -. "ready to fulfill" .-> DLV
+    SUB -. "cycle due" .-> DLV

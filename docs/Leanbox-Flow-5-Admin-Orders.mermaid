@@ -1,0 +1,24 @@
+flowchart TD
+    Start([Admin logs in]) --> Dash[Dashboard:<br/>orders, revenue, subscriptions, low-stock]
+    Dash --> New[New order notification]
+    New --> List[Open order management]
+    List --> View[View order detail:<br/>items, customer, payment]
+
+    View --> Decide{Process or cancel?}
+    Decide -- Cancel --> Cancel[Set status = Cancelled<br/>restock items if needed]
+    Cancel --> NotiCx[Notify customer] --> End2([Order closed])
+
+    Decide -- Process --> S1[Confirmed]
+    S1 --> S2[Preparing]
+    S2 --> S3[Shipped]
+    S3 --> AssignD[Create delivery + assign rider<br/>see Flow 7]
+    AssignD --> S4[Delivered<br/>set by rider on completion]
+
+    S1 --> N1[Notify customer at each change]
+    S2 --> N1
+    S3 --> N1
+    S4 --> N1
+    S4 --> Done[Enables customer review] --> End([Fulfilled])
+
+    Note[Allowed transitions: Pending to Confirmed to Preparing<br/>to Shipped to Delivered. Delivered is set by the rider.]
+    List -.-> Note
