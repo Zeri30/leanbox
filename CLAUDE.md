@@ -18,10 +18,16 @@ All planning docs live in `docs/`. Always consult them before building:
 If anything in a task conflicts with these docs, **stop and flag it** — don't guess.
 
 ## Tech stack
-- **Frontend (`leanbox-web`):** Next.js (App Router) + React + TypeScript + Tailwind CSS + shadcn/ui + Framer Motion. State: TanStack Query + Zustand.
-- **Backend (`leanbox-api`):** Laravel (PHP 8.2+) + Eloquent + Sanctum (auth) + Cashier (Stripe subscriptions). Queue + scheduler on Redis.
-- **Database:** PostgreSQL. **Cache/queue:** Redis. **Images:** Cloudinary.
-- **Payments:** GCash via PayMongo/Xendit (primary), Stripe (cards), COD.
+- **Frontend (`frontend/`):** Next.js (App Router) + React + TypeScript + Tailwind CSS + shadcn/ui + Framer Motion. State: TanStack Query + Zustand.
+- **Backend (`backend/`):** Laravel (PHP 8.2+) + Eloquent + Sanctum (auth).
+- **Database:** PostgreSQL via **Supabase**. **Cache/queue:** **Laravel `database` driver** (no Redis). **Images:** **Supabase Storage** (S3-compatible → Laravel S3 filesystem driver), bucket **`leanbox-images`** — all product/uploaded images go here.
+- **Payments (current):** **COD only.** Stripe (cards), PayMongo/Xendit (GCash), and Laravel Cashier are **deferred** — do not pull in these packages yet.
+
+> **Stack decisions (deviations from the blueprint docs — these override the docs):**
+> - **Supabase** provides Postgres + image storage, replacing the docs' separate Postgres host + Cloudinary.
+> - **No Redis.** Queues, cache, and the recurring-billing scheduler run on Laravel's `database` driver. Revisit if job throughput demands it.
+> - **Payments simplified to COD** for now; revisit Stripe/GCash/Cashier before Sprint 3.
+> The `docs/` files still describe the original Cloudinary/Redis/full-payments plan — treat this section as the current truth where they conflict.
 
 ## Architecture rules
 - Backend is a **modular monolith** organized by domain (auth, catalog, cart, orders, payments, subscriptions, deliveries, reviews, notifications, analytics).
