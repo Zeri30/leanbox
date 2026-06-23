@@ -55,10 +55,10 @@ If anything in a task conflicts with these docs, **stop and flag it** — don't 
 ## How to work
 - **One task at a time.** Plan first, then implement in small steps, then add tests, then stop.
 - Every task has a **Definition of Done** — satisfy it (including tests) before considering it complete.
-- Tests: Pest (backend), Vitest + RTL (frontend), Playwright (E2E for register→checkout, subscribe→recurring, rider deliver).
+- Tests: PHPUnit (backend), Vitest + RTL (frontend), Playwright (E2E for register→checkout, subscribe→recurring, rider deliver).
 - Never commit secrets. Keep `.env` out of git.
 - Round all currency/numbers shown to users.
 
 ## Commands (fill in as the repos are created)
-- API: `php artisan migrate`, `php artisan test` (Pest), `php artisan queue:work`, `php artisan schedule:work`
+- API: `php artisan migrate`, `php artisan test` (PHPUnit), `php artisan queue:work`, `php artisan schedule:work`
 - Web: `npm run dev`, `npm run test`, `npm run build`, `npm run lint`
