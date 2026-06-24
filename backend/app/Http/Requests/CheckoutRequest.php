@@ -23,6 +23,8 @@ class CheckoutRequest extends FormRequest
                 // Must be one of the authenticated user's own addresses.
                 Rule::exists('addresses', 'id')->where(fn ($q) => $q->where('user_id', $this->user()->id)),
             ],
+            // Only configured gateways are accepted (COD only for now).
+            'payment_method' => ['sometimes', 'string', Rule::in(array_keys(config('payments.gateways')))],
         ];
     }
 }
