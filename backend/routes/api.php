@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\Catalog\CategoryController as CatalogCategoryController;
 use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Resources\UserResource;
 use App\Support\ApiResponse;
@@ -50,6 +51,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('cart/items', [CartItemController::class, 'store'])->name('cart.items.store');
     Route::patch('cart/items/{cartItem}', [CartItemController::class, 'update'])->name('cart.items.update');
     Route::delete('cart/items/{cartItem}', [CartItemController::class, 'destroy'])->name('cart.items.destroy');
+
+    // Orders (checkout + lifecycle)
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResource($request->user())))
