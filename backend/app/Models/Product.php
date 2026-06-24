@@ -85,4 +85,14 @@ class Product extends Model
     {
         $query->whereColumn('stock_quantity', '<=', 'low_stock_threshold');
     }
+
+    /** Availability for the storefront: in_stock | low_stock | out_of_stock. */
+    public function stockStatus(): string
+    {
+        return match (true) {
+            $this->stock_quantity <= 0 => 'out_of_stock',
+            $this->stock_quantity <= $this->low_stock_threshold => 'low_stock',
+            default => 'in_stock',
+        };
+    }
 }
