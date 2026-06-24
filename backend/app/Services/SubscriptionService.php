@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\DeliverySchedule;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
+use App\Exceptions\SubscriptionException;
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
@@ -42,5 +43,48 @@ class SubscriptionService
 
             return $subscription;
         });
+    }
+
+    /** Pause an active subscription (halts cycle generation). */
+    public function pause(Subscription $subscription): Subscription
+    {
+        if ($subscription->status !== SubscriptionStatus::Active) {
+            throw new SubscriptionException('invalid_action', 'Only an active subscription can be paused.');
+        }
+
+        $subscription->update(['status' => SubscriptionStatus::Paused]);
+
+        return $subscription;
+    }
+
+    /** Resume a paused subscription and reschedule the next delivery. */
+    public function resume(Subscription $subscription): Subscription
+    {
+        if ($subscription->status !== SubscriptionStatus::Paused) {
+            throw new SubscriptionException('invalid_action', 'Only a paused subscription can be resumed.');
+        }
+
+        $subscription->update([
+            'status' => SubscriptionStatus::Active,
+            'next_delivery_date' => $subscription->delivery_schedule->nextDateFrom(now())->toDateString(),
+        ]);
+
+        return $subscription;
+    }
+
+    /** Cancel a subscription (stops all future cycles). */
+    public function cancel(Subscription $subscription): Subscription
+    {
+        if ($subscription->status === SubscriptionStatus::Cancelled) {
+            throw new SubscriptionException('invalid_action', 'Subscription is already cancelled.');
+        }
+
+        $subscription->update([
+            'status' => SubscriptionStatus::Cancelled,
+            'cancelled_at' => now()->toDateString(),
+            'next_delivery_date' => null,
+        ]);
+
+        return $subscription;
     }
 }
