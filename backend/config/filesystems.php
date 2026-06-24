@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        // Supabase Storage (S3-compatible). Public object URLs are served from
+        // SUPABASE_PUBLIC_URL; uploads go through the S3 endpoint (path-style).
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_ACCESS_KEY'),
+            'secret' => env('SUPABASE_SECRET_KEY'),
+            'region' => env('SUPABASE_REGION'),
+            'bucket' => env('SUPABASE_BUCKET'),
+            'endpoint' => env('SUPABASE_ENDPOINT'),
+            'url' => env('SUPABASE_PUBLIC_URL'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

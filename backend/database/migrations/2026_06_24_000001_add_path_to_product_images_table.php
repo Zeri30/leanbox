@@ -1,0 +1,24 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('product_images', function (Blueprint $table) {
+            // Internal storage key (disk path) for the uploaded object, used for deletion.
+            // The public-facing `url` remains the source of truth for display.
+            $table->string('path')->nullable()->after('url');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('product_images', function (Blueprint $table) {
+            $table->dropColumn('path');
+        });
+    }
+};
