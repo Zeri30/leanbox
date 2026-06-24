@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\Catalog\CategoryController as CatalogCategoryController;
 use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductController;
 use App\Http\Controllers\Api\ProfileController;
@@ -42,6 +44,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/me', [ProfileController::class, 'show'])->name('users.me.show');
     Route::patch('users/me', [ProfileController::class, 'update'])->name('users.me.update');
     Route::patch('users/me/password', [ProfileController::class, 'updatePassword'])->name('users.me.password');
+
+    // Cart (one per authenticated user)
+    Route::get('cart', [CartController::class, 'show'])->name('cart.show');
+    Route::post('cart/items', [CartItemController::class, 'store'])->name('cart.items.store');
+    Route::patch('cart/items/{cartItem}', [CartItemController::class, 'update'])->name('cart.items.update');
+    Route::delete('cart/items/{cartItem}', [CartItemController::class, 'destroy'])->name('cart.items.destroy');
 });
 
 Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResource($request->user())))
