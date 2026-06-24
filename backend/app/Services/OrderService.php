@@ -148,6 +148,29 @@ class OrderService
         return $this->gateways->for($payment->method)->markPaid($payment);
     }
 
+    /**
+     * Rider-driven: mark the order Delivered (the only path to that status) and,
+     * for COD, mark its payment paid (collected on delivery). Notifies via event.
+     */
+    public function markDelivered(Order $order): Order
+    {
+        if ($order->status === OrderStatus::Cancelled) {
+            throw new OrderException('invalid_transition', 'A cancelled order cannot be delivered.', 422);
+        }
+
+        if ($order->status !== OrderStatus::Delivered) {
+            $previous = $order->status;
+            $order->update(['status' => OrderStatus::Delivered]);
+            OrderStatusChanged::dispatch($order, $previous, OrderStatus::Delivered);
+        }
+
+        if ($order->payment()->exists()) {
+            $this->markPaid($order);
+        }
+
+        return $order;
+    }
+
     private function announceStockChange(Order $order): void
     {
         foreach ($order->items->pluck('product_id')->unique() as $productId) {
