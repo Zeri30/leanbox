@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\ProfileController;
@@ -42,6 +44,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('ping', fn () => ApiResponse::success(['scope' => 'admin']))->name('admin.ping');
     Route::get('users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('admin.users.status');
+
+    // Catalog management
+    Route::apiResource('products', AdminProductController::class)->names('admin.products');
+    Route::apiResource('categories', AdminCategoryController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->names('admin.categories');
 });
 
 // Rider-only routes (role-gated). Filled in by later sprints.
