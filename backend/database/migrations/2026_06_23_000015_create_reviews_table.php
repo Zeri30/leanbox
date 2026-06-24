@@ -25,9 +25,12 @@ return new class extends Migration
             $table->unique(['user_id', 'product_id', 'order_id']);
         });
 
-        // Rating must be 1–5.
-        DB::statement('ALTER TABLE reviews ADD CONSTRAINT chk_reviews_rating
-            CHECK (rating BETWEEN 1 AND 5)');
+        // Rating must be 1–5. Postgres-only (SQLite can't ALTER TABLE ADD CONSTRAINT);
+        // request validation enforces the range at the application layer.
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE reviews ADD CONSTRAINT chk_reviews_rating
+                CHECK (rating BETWEEN 1 AND 5)');
+        }
     }
 
     public function down(): void

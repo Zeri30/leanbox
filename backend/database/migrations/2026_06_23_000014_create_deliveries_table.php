@@ -31,8 +31,13 @@ return new class extends Migration
         });
 
         // Exactly one of order_id / subscription_id must be set.
-        DB::statement('ALTER TABLE deliveries ADD CONSTRAINT chk_deliveries_one_target
-            CHECK ((order_id IS NOT NULL)::int + (subscription_id IS NOT NULL)::int = 1)');
+        // SQLite (used in local tests) can't ALTER TABLE ADD CONSTRAINT, so this DB-level
+        // guard is Postgres-only; the Delivery model enforces the same rule everywhere.
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE deliveries ADD CONSTRAINT chk_deliveries_one_target
+                CHECK ((order_id IS NOT NULL AND subscription_id IS NULL)
+                    OR (order_id IS NULL AND subscription_id IS NOT NULL))');
+        }
     }
 
     public function down(): void

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Resources\UserResource;
 use App\Support\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +17,13 @@ Route::get('/health', fn () => ApiResponse::success([
     'version' => 'v1',
 ]))->name('health');
 
-Route::get('/user', fn (Request $request) => ApiResponse::success($request->user()))
+// Auth (Sanctum)
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+});
+
+Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResource($request->user())))
     ->middleware('auth:sanctum')
     ->name('users.me');
