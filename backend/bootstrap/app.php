@@ -29,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
         ]);
 
+        // Global API rate limit (the 'api' limiter is defined in AppServiceProvider).
+        $middleware->prependToGroup('api', 'throttle:api');
+
         // Reject suspended accounts on every API request that carries a token.
         $middleware->appendToGroup('api', EnsureUserIsActive::class);
     })
