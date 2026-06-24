@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\Admin\DeliveryController as AdminDeliveryController;
+use App\Http\Controllers\Api\Admin\InventoryController as AdminInventoryController;
 use App\Http\Controllers\Api\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
@@ -124,6 +126,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     // Review moderation
     Route::get('reviews/stats', [AdminReviewController::class, 'stats'])->name('admin.reviews.stats');
     Route::patch('reviews/{review}', [AdminReviewController::class, 'update'])->name('admin.reviews.update');
+
+    // Inventory & analytics
+    Route::patch('products/{product}/stock', [AdminInventoryController::class, 'updateStock'])->name('admin.products.stock');
+    Route::get('inventory/low-stock', [AdminInventoryController::class, 'lowStock'])->name('admin.inventory.low-stock');
+    Route::get('dashboard/summary', [AdminDashboardController::class, 'summary'])->name('admin.dashboard.summary');
+    Route::get('analytics/best-sellers', [AdminDashboardController::class, 'bestSellers'])->name('admin.analytics.best-sellers');
 
     // Delivery management
     Route::get('deliveries', [AdminDeliveryController::class, 'index'])->name('admin.deliveries.index');
