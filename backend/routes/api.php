@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
+use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CartController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductControll
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\Rider\DeliveryController as RiderDeliveryController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Resources\UserResource;
@@ -39,6 +41,7 @@ Route::get('products', [CatalogProductController::class, 'index'])->name('produc
 Route::get('products/{product:slug}', [CatalogProductController::class, 'show'])->name('products.show');
 Route::get('categories', [CatalogCategoryController::class, 'index'])->name('categories.index');
 Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
+Route::get('products/{product}/reviews', [ReviewController::class, 'index'])->name('products.reviews.index');
 
 // Auth (Sanctum)
 Route::prefix('auth')->group(function () {
@@ -64,6 +67,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Reviews (verified purchase)
+    Route::post('products/{product}/reviews', [ReviewController::class, 'store'])->name('products.reviews.store');
+    Route::get('reviews/me', [ReviewController::class, 'mine'])->name('reviews.me');
 
     // Subscriptions (subscribe + manage)
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
@@ -108,6 +115,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
     Route::patch('orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
+
+    // Review moderation
+    Route::get('reviews/stats', [AdminReviewController::class, 'stats'])->name('admin.reviews.stats');
+    Route::patch('reviews/{review}', [AdminReviewController::class, 'update'])->name('admin.reviews.update');
 
     // Delivery management
     Route::get('deliveries', [AdminDeliveryController::class, 'index'])->name('admin.deliveries.index');
