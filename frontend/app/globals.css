@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Leanbox design tokens (dark theme + green accent).
+ * Values from docs/Leanbox-StyleGuide.html. In Tailwind v4 these @theme tokens
+ * generate utilities, e.g. bg-background, text-foreground, bg-primary, border-border.
+ */
+@theme {
+  /* Surfaces */
+  --color-background: #0e1311;
+  --color-foreground: #f1f5f4;
+  --color-surface: #161c1a;
+  --color-elevated: #1e2624;
+
+  --color-card: #161c1a;
+  --color-card-foreground: #f1f5f4;
+  --color-popover: #1e2624;
+  --color-popover-foreground: #f1f5f4;
+
+  /* Brand / action */
+  --color-primary: #22c55e;
+  --color-primary-foreground: #06210f;
+  --color-primary-hover: #16a34a;
+  --color-primary-soft: #0f2e1f;
+  --color-accent-lime: #a3e635;
+
+  --color-secondary: #1e2624;
+  --color-secondary-foreground: #f1f5f4;
+  --color-muted: #1e2624;
+  --color-muted-foreground: #9ca8a3;
+  --color-subtle: #6b7772;
+  --color-accent: #0f2e1f;
+  --color-accent-foreground: #22c55e;
+
+  /* Status */
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #f1f5f4;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-info: #38bdf8;
+
+  /* Lines & focus */
+  --color-border: #2a332f;
+  --color-border-strong: #3a463f;
+  --color-input: #2a332f;
+  --color-ring: #22c55e;
+
+  /* Radius (styleguide --radius: 16px) */
+  --radius: 16px;
+
+  /* Fonts (wired via next/font in app/layout.tsx) */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-sora), system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--color-border);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-foreground);
+  }
 }
