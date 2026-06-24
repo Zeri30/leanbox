@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Catalog\CategoryController as CatalogCategoryController;
+use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Resources\UserResource;
 use App\Support\ApiResponse;
@@ -22,6 +24,11 @@ Route::get('/health', fn () => ApiResponse::success([
     'service' => 'leanbox-api',
     'version' => 'v1',
 ]))->name('health');
+
+// Public storefront catalog (browse)
+Route::get('products', [CatalogProductController::class, 'index'])->name('products.index');
+Route::get('products/{product:slug}', [CatalogProductController::class, 'show'])->name('products.show');
+Route::get('categories', [CatalogCategoryController::class, 'index'])->name('categories.index');
 
 // Auth (Sanctum)
 Route::prefix('auth')->group(function () {
