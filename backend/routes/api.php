@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Resources\UserResource;
 use App\Support\ApiResponse;
 use Illuminate\Http\Request;
@@ -24,13 +26,22 @@ Route::prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
+// Authenticated profile & password
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('users/me', [ProfileController::class, 'show'])->name('users.me.show');
+    Route::patch('users/me', [ProfileController::class, 'update'])->name('users.me.update');
+    Route::patch('users/me/password', [ProfileController::class, 'updatePassword'])->name('users.me.password');
+});
+
 Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResource($request->user())))
     ->middleware('auth:sanctum')
     ->name('users.me');
 
-// Admin-only routes (role-gated). Filled in by later sprints.
+// Admin-only routes (role-gated).
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('ping', fn () => ApiResponse::success(['scope' => 'admin']))->name('admin.ping');
+    Route::get('users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('admin.users.status');
 });
 
 // Rider-only routes (role-gated). Filled in by later sprints.
