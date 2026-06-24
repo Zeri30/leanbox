@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
@@ -12,7 +13,9 @@ use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\Catalog\CategoryController as CatalogCategoryController;
 use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Resources\UserResource;
 use App\Support\ApiResponse;
 use Illuminate\Http\Request;
@@ -33,6 +36,7 @@ Route::get('/health', fn () => ApiResponse::success([
 Route::get('products', [CatalogProductController::class, 'index'])->name('products.index');
 Route::get('products/{product:slug}', [CatalogProductController::class, 'show'])->name('products.show');
 Route::get('categories', [CatalogCategoryController::class, 'index'])->name('categories.index');
+Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
 
 // Auth (Sanctum)
 Route::prefix('auth')->group(function () {
@@ -58,6 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Subscriptions (subscribe; manage endpoints added in the next task)
+    Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
 });
 
 Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResource($request->user())))
@@ -85,6 +92,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     // Product nutrition (1:1)
     Route::put('products/{product}/nutrition', [AdminNutritionController::class, 'upsert'])->name('admin.products.nutrition.upsert');
     Route::delete('products/{product}/nutrition', [AdminNutritionController::class, 'destroy'])->name('admin.products.nutrition.destroy');
+
+    // Subscription plans
+    Route::apiResource('plans', AdminPlanController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->names('admin.plans');
 
     // Order management
     Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
