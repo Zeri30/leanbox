@@ -9,9 +9,13 @@ use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Subscription;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class DeliveryService
 {
+    public function __construct(private readonly OrderService $orders) {}
+
     /** Create a delivery for a one-off order (orders are 1:1 with deliveries). */
     public function createFromOrder(Order $order): Delivery
     {
@@ -61,6 +65,45 @@ class DeliveryService
         }
 
         $delivery->update(['status' => DeliveryStatus::Failed]);
+
+        return $delivery;
+    }
+
+    /**
+     * Rider status update (out_for_delivery → delivered/failed). On delivered, syncs
+     * the linked order to Delivered (which marks COD paid + notifies the customer).
+     */
+    public function riderUpdateStatus(Delivery $delivery, DeliveryStatus $to): Delivery
+    {
+        if (! $delivery->status->canTransitionTo($to)) {
+            throw new DeliveryException(
+                'invalid_transition',
+                "Cannot change delivery from {$delivery->status->value} to {$to->value}.",
+            );
+        }
+
+        $delivery->status = $to;
+        if ($to === DeliveryStatus::Delivered) {
+            $delivery->delivered_at = now();
+        }
+        $delivery->save();
+
+        if ($to === DeliveryStatus::Delivered && $delivery->order_id !== null) {
+            $this->orders->markDelivered($delivery->order);
+        }
+
+        return $delivery;
+    }
+
+    /** Attach proof-of-delivery photo (Supabase Storage) + notes. */
+    public function attachProof(Delivery $delivery, UploadedFile $photo, ?string $notes): Delivery
+    {
+        $path = $photo->store("deliveries/{$delivery->id}", 'supabase');
+
+        $delivery->update([
+            'proof_image_url' => Storage::disk('supabase')->url($path),
+            'delivery_notes' => $notes ?? $delivery->delivery_notes,
+        ]);
 
         return $delivery;
     }

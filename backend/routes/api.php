@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductControll
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\Rider\DeliveryController as RiderDeliveryController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Resources\UserResource;
 use App\Support\ApiResponse;
@@ -115,7 +116,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::patch('deliveries/{delivery}', [AdminDeliveryController::class, 'update'])->name('admin.deliveries.update');
 });
 
-// Rider-only routes (role-gated). Filled in by later sprints.
+// Rider-only routes (role-gated).
 Route::middleware(['auth:sanctum', 'role:rider'])->prefix('rider')->group(function () {
     Route::get('ping', fn () => ApiResponse::success(['scope' => 'rider']))->name('rider.ping');
+
+    Route::get('deliveries', [RiderDeliveryController::class, 'index'])->name('rider.deliveries.index');
+    Route::patch('deliveries/{delivery}/status', [RiderDeliveryController::class, 'updateStatus'])->name('rider.deliveries.status');
+    Route::post('deliveries/{delivery}/proof', [RiderDeliveryController::class, 'proof'])->name('rider.deliveries.proof');
 });
