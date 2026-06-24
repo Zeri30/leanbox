@@ -3,12 +3,16 @@
 namespace App\Services;
 
 use App\Enums\DeliverySchedule;
+use App\Enums\DeliveryStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
+use App\Events\SubscriptionRenewed;
 use App\Exceptions\SubscriptionException;
 use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
@@ -86,5 +90,56 @@ class SubscriptionService
         ]);
 
         return $subscription;
+    }
+
+    /**
+     * Process one due cycle for an active subscription: record a (COD, pending)
+     * subscription_payment, create the cycle's delivery, advance next_delivery_date,
+     * and emit a renewal event. Idempotent per cycle (skips if not due or already billed).
+     */
+    public function processCycle(Subscription $subscription): ?SubscriptionPayment
+    {
+        $subscription->loadMissing('plan');
+
+        if ($subscription->status !== SubscriptionStatus::Active || $subscription->next_delivery_date === null) {
+            return null;
+        }
+
+        // Only when due (next delivery date is today or past).
+        if ($subscription->next_delivery_date->greaterThan(Carbon::today())) {
+            return null;
+        }
+
+        $cycleDate = $subscription->next_delivery_date->toDateString();
+
+        // Idempotency: never bill the same cycle twice.
+        if ($subscription->payments()->whereDate('billing_date', $cycleDate)->exists()) {
+            return null;
+        }
+
+        $payment = null;
+
+        DB::transaction(function () use ($subscription, $cycleDate, &$payment) {
+            $payment = $subscription->payments()->create([
+                'amount' => $subscription->plan->price,
+                'status' => PaymentStatus::Pending, // COD — collected on delivery
+                'billing_date' => $cycleDate,
+            ]);
+
+            $subscription->deliveries()->create([
+                'delivery_address_id' => $subscription->delivery_address_id,
+                'status' => DeliveryStatus::Pending,
+            ]);
+
+            $subscription->update([
+                'next_delivery_date' => $subscription->delivery_schedule
+                    ->nextDateFrom($subscription->next_delivery_date)
+                    ->toDateString(),
+            ]);
+        });
+
+        SubscriptionRenewed::dispatch($subscription, $payment);
+
+        return $payment;
     }
 }
