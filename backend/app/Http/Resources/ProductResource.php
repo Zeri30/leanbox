@@ -31,6 +31,8 @@ class ProductResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'category' => CategoryResource::make($this->whenLoaded('category')),
+            'images' => ProductImageResource::collection($this->whenLoaded('images')),
+            'nutrition' => NutritionFactResource::make($this->whenLoaded('nutritionFacts')),
         ];
     }
 }

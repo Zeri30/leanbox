@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\ProfileController;
@@ -50,6 +52,16 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('categories', AdminCategoryController::class)
         ->only(['index', 'store', 'update', 'destroy'])
         ->names('admin.categories');
+
+    // Product images (reorder must precede the {image} param route)
+    Route::post('products/{product}/images', [AdminProductImageController::class, 'store'])->name('admin.products.images.store');
+    Route::patch('products/{product}/images/reorder', [AdminProductImageController::class, 'reorder'])->name('admin.products.images.reorder');
+    Route::patch('products/{product}/images/{image}', [AdminProductImageController::class, 'update'])->name('admin.products.images.update');
+    Route::delete('products/{product}/images/{image}', [AdminProductImageController::class, 'destroy'])->name('admin.products.images.destroy');
+
+    // Product nutrition (1:1)
+    Route::put('products/{product}/nutrition', [AdminNutritionController::class, 'upsert'])->name('admin.products.nutrition.upsert');
+    Route::delete('products/{product}/nutrition', [AdminNutritionController::class, 'destroy'])->name('admin.products.nutrition.destroy');
 });
 
 // Rider-only routes (role-gated). Filled in by later sprints.

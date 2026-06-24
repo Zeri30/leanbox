@@ -51,7 +51,13 @@ class ProductController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        return ApiResponse::success(new ProductResource($product->load('category')));
+        $product->load([
+            'category',
+            'images' => fn ($q) => $q->orderBy('sort_order'),
+            'nutritionFacts',
+        ]);
+
+        return ApiResponse::success(new ProductResource($product));
     }
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
