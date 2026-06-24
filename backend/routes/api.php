@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\NutritionController as AdminNutritionController;
+use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
@@ -84,6 +85,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     // Product nutrition (1:1)
     Route::put('products/{product}/nutrition', [AdminNutritionController::class, 'upsert'])->name('admin.products.nutrition.upsert');
     Route::delete('products/{product}/nutrition', [AdminNutritionController::class, 'destroy'])->name('admin.products.nutrition.destroy');
+
+    // Order management
+    Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
+    Route::patch('orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
 });
 
 // Rider-only routes (role-gated). Filled in by later sprints.

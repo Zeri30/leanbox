@@ -28,6 +28,8 @@ class OrderResource extends JsonResource
             'placed_at' => $this->placed_at,
             'created_at' => $this->created_at,
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'customer' => UserResource::make($this->whenLoaded('user')),
+            'payment' => PaymentResource::make($this->whenLoaded('payment')),
         ];
     }
 }
