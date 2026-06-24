@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\Catalog\CategoryController as CatalogCategoryController;
 use App\Http\Controllers\Api\Catalog\ProductController as CatalogProductController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\ProfileController;
@@ -71,6 +72,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reviews (verified purchase)
     Route::post('products/{product}/reviews', [ReviewController::class, 'store'])->name('products.reviews.store');
     Route::get('reviews/me', [ReviewController::class, 'mine'])->name('reviews.me');
+
+    // Notifications (in-app feed)
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     // Subscriptions (subscribe + manage)
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');

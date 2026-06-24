@@ -25,5 +25,8 @@ class AppServiceProvider extends ServiceProvider
         // Global API rate limit: 60 requests/min per authenticated user, else per IP.
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)
             ->by($request->user()?->id ?: $request->ip()));
+
+        // Event→notification listeners are auto-discovered from app/Listeners
+        // (they type-hint their event in handle()), so no manual registration here.
     }
 }
