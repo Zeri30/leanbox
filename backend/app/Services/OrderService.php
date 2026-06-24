@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Events\OrderStatusChanged;
 use App\Events\StockChanged;
 use App\Exceptions\OrderException;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Payments\PaymentGatewayManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,14 +20,16 @@ class OrderService
     /** Flat shipping fee (PHP). Delivery-fee model TBD — see PRD open questions. */
     private const SHIPPING_FEE = 49.0;
 
+    public function __construct(private readonly PaymentGatewayManager $gateways) {}
+
     /**
      * Convert the user's cart into a pending order: snapshot line items, decrement
-     * stock under a lock, clear the cart — all in one transaction. Throws OrderException
-     * (rolling back) if the cart is empty or any line is short/unavailable.
+     * stock under a lock, record the payment, clear the cart — all in one transaction.
+     * Throws OrderException (rolling back) if the cart is empty or any line is short/unavailable.
      */
-    public function placeFromCart(User $user, int $deliveryAddressId): Order
+    public function placeFromCart(User $user, int $deliveryAddressId, PaymentMethod $method = PaymentMethod::Cod): Order
     {
-        $order = DB::transaction(function () use ($user, $deliveryAddressId) {
+        $order = DB::transaction(function () use ($user, $deliveryAddressId, $method) {
             $cart = $user->cart()->first();
             $items = $cart ? $cart->items()->get() : collect();
 
@@ -71,6 +76,9 @@ class OrderService
                 ]);
                 $product->decrement('stock_quantity', $item->quantity);
             }
+
+            // Record the payment for the order (COD: pending, collected on delivery).
+            $this->gateways->for($method)->createForOrder($order);
 
             $cart->items()->delete();
 
@@ -127,6 +135,17 @@ class OrderService
         OrderStatusChanged::dispatch($order, $previous, $to);
 
         return $order;
+    }
+
+    /**
+     * Mark an order's payment as paid via its gateway. For COD this is called when
+     * the order is delivered (the Deliveries epic invokes this hook).
+     */
+    public function markPaid(Order $order): Payment
+    {
+        $payment = $order->payment()->firstOrFail();
+
+        return $this->gateways->for($payment->method)->markPaid($payment);
     }
 
     private function announceStockChange(Order $order): void

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Exceptions\OrderException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
@@ -37,16 +38,20 @@ class OrderController extends Controller
 
     public function store(CheckoutRequest $request): JsonResponse
     {
+        $data = $request->validated();
+        $method = PaymentMethod::from($data['payment_method'] ?? config('payments.default_method'));
+
         try {
             $order = $this->orders->placeFromCart(
                 $request->user(),
-                (int) $request->validated()['delivery_address_id'],
+                (int) $data['delivery_address_id'],
+                $method,
             );
         } catch (OrderException $e) {
             return ApiResponse::error($e->getMessage(), $e->errorCode, $e->status);
         }
 
-        return ApiResponse::success(new OrderResource($order->load('items')), null, 201);
+        return ApiResponse::success(new OrderResource($order->load(['items', 'payment'])), null, 201);
     }
 
     public function show(Order $order): JsonResponse
