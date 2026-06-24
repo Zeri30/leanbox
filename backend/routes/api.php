@@ -27,3 +27,13 @@ Route::prefix('auth')->group(function () {
 Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResource($request->user())))
     ->middleware('auth:sanctum')
     ->name('users.me');
+
+// Admin-only routes (role-gated). Filled in by later sprints.
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('ping', fn () => ApiResponse::success(['scope' => 'admin']))->name('admin.ping');
+});
+
+// Rider-only routes (role-gated). Filled in by later sprints.
+Route::middleware(['auth:sanctum', 'role:rider'])->prefix('rider')->group(function () {
+    Route::get('ping', fn () => ApiResponse::success(['scope' => 'rider']))->name('rider.ping');
+});
