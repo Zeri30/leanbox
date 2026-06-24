@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\DeliveryController as AdminDeliveryController;
 use App\Http\Controllers\Api\Admin\NutritionController as AdminNutritionController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
@@ -106,6 +107,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
     Route::patch('orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
+
+    // Delivery management
+    Route::get('deliveries', [AdminDeliveryController::class, 'index'])->name('admin.deliveries.index');
+    Route::post('deliveries', [AdminDeliveryController::class, 'store'])->name('admin.deliveries.store');
+    Route::post('deliveries/{delivery}/assign', [AdminDeliveryController::class, 'assign'])->name('admin.deliveries.assign');
+    Route::patch('deliveries/{delivery}', [AdminDeliveryController::class, 'update'])->name('admin.deliveries.update');
 });
 
 // Rider-only routes (role-gated). Filled in by later sprints.
