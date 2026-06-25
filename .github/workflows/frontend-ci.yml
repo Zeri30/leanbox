@@ -31,7 +31,11 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # `npm install` (not `npm ci`): the lockfile is authored on Windows, and
+        # Tailwind v4 / lightningcss / SWC pull different per-platform native
+        # optional deps on Linux, which `npm ci` refuses to reconcile. `npm install`
+        # honours the lock and resolves the platform optionals.
+        run: npm install --no-audit --no-fund
 
       - name: Lint
         run: npm run lint
