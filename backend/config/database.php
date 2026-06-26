@@ -97,6 +97,16 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Dev-only PDO tuning for a remote DB (all off by default — prod is
+            // unaffected). DB_PERSISTENT reuses the connection across requests
+            // (skips per-request TLS handshake). DB_EMULATE_PREPARES sends queries
+            // as a single round trip instead of prepare+execute, roughly halving
+            // per-query latency. Safe with the Supabase session pooler (port 5432);
+            // do NOT enable with a transaction pooler (6543).
+            'options' => array_filter([
+                PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
+                PDO::ATTR_EMULATE_PREPARES => (bool) env('DB_EMULATE_PREPARES', false),
+            ]),
         ],
 
         'sqlsrv' => [
