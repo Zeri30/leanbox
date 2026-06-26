@@ -3,6 +3,9 @@ import type { ApiEnvelope } from "@/lib/types/api";
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
+/** Abort a request after this long so slow/unreachable servers fail fast. */
+const REQUEST_TIMEOUT_MS = 12_000;
+
 /** Thrown when the API returns a non-2xx status or an error envelope. */
 export class ApiRequestError extends Error {
   constructor(
@@ -43,15 +46,38 @@ async function request<T>(
 ): Promise<ApiResult<T>> {
   const token = resolveToken();
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...init,
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init.headers,
+      },
+    });
+  } catch {
+    if (controller.signal.aborted) {
+      throw new ApiRequestError(
+        408,
+        "timeout",
+        "The request timed out. Please try again.",
+      );
+    }
+    // Network failure (server unreachable, CORS, offline, …).
+    throw new ApiRequestError(
+      0,
+      "network_error",
+      "Couldn't reach the server. Check your connection and try again.",
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
 
   let body: ApiEnvelope<T> | null = null;
   try {

@@ -1,8 +1,13 @@
 import type { ReactNode } from "react";
 
+import { RequireAuth } from "@/components/auth/require-auth";
 import { AdminShell } from "@/components/nav/admin-shell";
 
-// Admin dashboard area. Role gating (admin only) is added with the auth task.
+// Admin dashboard area — requires an authenticated admin.
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <RequireAuth role="admin">
+      <AdminShell>{children}</AdminShell>
+    </RequireAuth>
+  );
 }
