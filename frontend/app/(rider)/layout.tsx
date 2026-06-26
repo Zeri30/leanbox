@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
-// Rider area (mobile-first). Role gating (rider only) is added in Sprint 1+.
+import { RiderShell } from "@/components/nav/rider-shell";
+
+// Rider area (mobile-first). Role gating (rider only) is added with the auth task.
 export default function RiderLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return <RiderShell>{children}</RiderShell>;
 }
