@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { Brand } from "@/components/nav/brand";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
@@ -20,6 +21,7 @@ const CATEGORIES = [
 /** Storefront top nav (UI/UX §5): logo left, categories center (desktop), actions right. */
 export function TopNav() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -67,14 +69,17 @@ export function TopNav() {
           >
             <ShoppingCart className="size-5" />
           </Link>
-          <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
-            <Link href="/account" aria-label="Account">
-              <User className="size-5" />
-            </Link>
-          </Button>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href="/login">Sign in</Link>
-          </Button>
+          {isAuthenticated ? (
+            <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
+              <Link href="/account" aria-label="Account">
+                <User className="size-5" />
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="sm" className="hidden sm:inline-flex">
+              <Link href="/login">Sign in</Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -95,11 +100,11 @@ export function TopNav() {
             </Link>
           ))}
           <Link
-            href="/login"
+            href={isAuthenticated ? "/account" : "/login"}
             onClick={() => setOpen(false)}
             className="mt-1 block rounded-lg px-3 py-2.5 text-sm font-semibold text-primary hover:bg-elevated"
           >
-            Sign in
+            {isAuthenticated ? "My account" : "Sign in"}
           </Link>
         </nav>
       )}

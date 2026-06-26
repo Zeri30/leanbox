@@ -20,6 +20,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
+import { LogoutButton } from "@/components/auth/logout-button";
 import { Brand } from "@/components/nav/brand";
 import { cn } from "@/lib/utils";
 
@@ -91,7 +92,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-surface transition-[width] duration-200 lg:flex",
-          collapsed ? "w-[72px]" : "w-60",
+          collapsed ? "w-18" : "w-60",
         )}
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
@@ -145,7 +146,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "flex min-h-dvh flex-col transition-[padding] duration-200",
-          collapsed ? "lg:pl-[72px]" : "lg:pl-60",
+          collapsed ? "lg:pl-18" : "lg:pl-60",
         )}
       >
         {/* Top bar */}
@@ -176,6 +177,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             >
               <Bell className="size-5" />
             </button>
+            <LogoutButton />
             <div className="grid size-9 place-items-center rounded-full bg-primary-soft text-sm font-semibold text-primary">
               A
             </div>
