@@ -8,15 +8,13 @@ import { useState } from "react";
 import { Brand } from "@/components/nav/brand";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { NAV_CATEGORIES } from "@/lib/catalog/nav-categories";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = [
-  { label: "Vegetarian", href: "/products?category=vegetarian" },
-  { label: "High-Protein", href: "/products?category=high-protein" },
-  { label: "Supplements", href: "/products?category=supplements" },
-  { label: "Snacks", href: "/products?category=snacks" },
-  { label: "Wellness", href: "/products?category=wellness" },
-];
+const CATEGORIES = NAV_CATEGORIES.map((c) => ({
+  label: c.label,
+  href: `/products?category=${c.slug}`,
+}));
 
 /** Storefront top nav (UI/UX §5): logo left, categories center (desktop), actions right. */
 export function TopNav() {

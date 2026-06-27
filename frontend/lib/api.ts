@@ -3,8 +3,12 @@ import type { ApiEnvelope } from "@/lib/types/api";
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
-/** Abort a request after this long so slow/unreachable servers fail fast. */
-const REQUEST_TIMEOUT_MS = 12_000;
+/**
+ * Abort a request after this long so slow/unreachable servers fail fast.
+ * Server-side (SSR) calls get a longer budget because dev runs against a remote
+ * DB with high per-query latency; the browser keeps a snappy 12s.
+ */
+const REQUEST_TIMEOUT_MS = typeof window === "undefined" ? 30_000 : 12_000;
 
 /** Thrown when the API returns a non-2xx status or an error envelope. */
 export class ApiRequestError extends Error {

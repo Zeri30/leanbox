@@ -31,3 +31,65 @@ export interface AuthResult {
   user: User;
   token: string;
 }
+
+/* ---------------------------------------------------------------------------
+ * Catalog (storefront browse) — mirrors backend Catalog resources.
+ * ------------------------------------------------------------------------ */
+
+/** Mirrors backend App\Http\Resources\CategoryResource. */
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+/** Mirrors backend App\Http\Resources\ProductImageResource. */
+export interface ProductImage {
+  id: number;
+  product_id: number;
+  url: string;
+  alt_text: string | null;
+  is_primary: boolean;
+  sort_order: number;
+}
+
+/** Availability computed by Product::stockStatus(). */
+export type StockStatus = "in_stock" | "low_stock" | "out_of_stock";
+
+export interface ReviewsSummary {
+  count: number;
+  average: number | null;
+}
+
+/** Mirrors backend App\Http\Resources\ProductResource (decimal price is a string). */
+export interface Product {
+  id: number;
+  category_id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: string;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  is_featured: boolean;
+  is_best_selling: boolean;
+  is_active: boolean;
+  stock_status: StockStatus;
+  created_at: string | null;
+  updated_at: string | null;
+  category?: Category;
+  images?: ProductImage[];
+  reviews_summary?: ReviewsSummary;
+}
+
+/** Shape of meta.pagination on the products index response. */
+export interface Pagination {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
