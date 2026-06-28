@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
-      // Placeholder images used by the demo seeder.
+      // Curated product photos used by the demo seeder.
+      { protocol: "https", hostname: "images.unsplash.com" },
+      // Placeholder images (legacy seed data).
       { protocol: "https", hostname: "placehold.co" },
     ],
   },
