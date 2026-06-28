@@ -16,7 +16,7 @@ const SORT_LABELS: Record<ProductSort, string> = {
 };
 
 const selectClass =
-  "h-11 rounded-[10px] border border-input bg-surface px-3 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "h-11 rounded-lg border border-input bg-surface px-3 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export interface FilterBarProps {
   search: string;

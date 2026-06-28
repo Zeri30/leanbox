@@ -31,7 +31,7 @@ export function QuantityStepper({
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-[10px] border border-input",
+        "inline-flex items-center rounded-lg border border-input",
         className,
       )}
     >
@@ -40,7 +40,7 @@ export function QuantityStepper({
         aria-label="Decrease quantity"
         onClick={() => set(value - 1)}
         disabled={disabled || value <= min}
-        className="grid size-10 place-items-center rounded-l-[10px] text-foreground transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-40"
+        className="grid size-10 place-items-center rounded-l-lg text-foreground transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-40"
       >
         <Minus className="size-4" />
       </button>
@@ -55,7 +55,7 @@ export function QuantityStepper({
         aria-label="Increase quantity"
         onClick={() => set(value + 1)}
         disabled={disabled || value >= max}
-        className="grid size-10 place-items-center rounded-r-[10px] text-foreground transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-40"
+        className="grid size-10 place-items-center rounded-r-lg text-foreground transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-40"
       >
         <Plus className="size-4" />
       </button>
