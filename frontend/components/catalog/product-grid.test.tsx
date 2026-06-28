@@ -1,5 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,6 +9,19 @@ import {
   ProductGridEmpty,
 } from "@/components/catalog/product-grid";
 import type { Product } from "@/lib/types/api";
+
+// ProductCard uses router + TanStack hooks for built-in quick-add.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+  usePathname: () => "/products",
+}));
+
+function renderWithClient(ui: ReactNode) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+}
 
 function makeProduct(overrides: Partial<Product> = {}): Product {
   return {
@@ -30,7 +45,7 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
 
 describe("ProductGrid", () => {
   it("renders a card with name, price, and PDP link for each product", () => {
-    render(
+    renderWithClient(
       <ProductGrid
         products={[
           makeProduct({ id: 1, name: "Tofu Power Bowl", slug: "tofu-power-bowl" }),
@@ -49,7 +64,7 @@ describe("ProductGrid", () => {
   });
 
   it("marks out-of-stock products and disables their add-to-cart", () => {
-    render(
+    renderWithClient(
       <ProductGrid products={[makeProduct({ stock_quantity: 0 })]} />,
     );
     expect(screen.getByRole("button", { name: /out of stock/i })).toBeDisabled();

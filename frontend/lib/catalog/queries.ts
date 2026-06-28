@@ -185,6 +185,7 @@ export function primaryImage(product: Product): string | null {
 /** Map a Product onto the props the shared <ProductCard> expects. */
 export function productToCardProps(product: Product): ProductCardProps {
   return {
+    productId: product.id,
     name: product.name,
     price: product.price,
     href: `/products/${product.slug}`,

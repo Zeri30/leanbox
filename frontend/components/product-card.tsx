@@ -1,13 +1,19 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Check, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HoverLift } from "@/components/motion";
+import { useAuth } from "@/lib/auth";
+import { useAddToCart } from "@/lib/cart";
 import { cn, formatPHP } from "@/lib/utils";
+
+const FEEDBACK_MS = 2000;
 
 export interface ProductCardProps {
   name: string;
@@ -20,6 +26,9 @@ export interface ProductCardProps {
   /** stock <= 0 disables the add-to-cart action and shows an out-of-stock badge. */
   stock?: number;
   featured?: boolean;
+  /** Enables built-in quick-add (qty 1) from the card. */
+  productId?: number;
+  /** Override the add action entirely (e.g. the component preview page). */
   onAddToCart?: () => void;
   className?: string;
 }
@@ -34,10 +43,42 @@ export function ProductCard({
   reviewCount,
   stock,
   featured,
+  productId,
   onAddToCart,
   className,
 }: ProductCardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+  const addToCart = useAddToCart();
+  const [added, setAdded] = useState(false);
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const outOfStock = typeof stock === "number" && stock <= 0;
+
+  const handleAdd = () => {
+    if (onAddToCart) {
+      onAddToCart();
+      return;
+    }
+    if (productId == null) return;
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    // Optimistic feedback; the nav badge bumps via the hook, revert on failure.
+    setAdded(true);
+    if (addedTimer.current) clearTimeout(addedTimer.current);
+    addToCart.mutate(
+      { productId, quantity: 1 },
+      {
+        onSuccess: () => {
+          addedTimer.current = setTimeout(() => setAdded(false), FEEDBACK_MS);
+        },
+        onError: () => setAdded(false),
+      },
+    );
+  };
 
   return (
     <HoverLift
@@ -103,10 +144,22 @@ export function ProductCard({
 
         <Button
           className="mt-1 w-full"
-          disabled={outOfStock}
-          onClick={onAddToCart}
+          disabled={outOfStock || addToCart.isPending}
+          onClick={handleAdd}
         >
-          {outOfStock ? "Out of stock" : "Add to cart"}
+          {outOfStock ? (
+            "Out of stock"
+          ) : added ? (
+            <>
+              <Check className="size-4" /> Added
+            </>
+          ) : addToCart.isPending ? (
+            "Adding…"
+          ) : (
+            <>
+              <ShoppingCart className="size-4" /> Add to cart
+            </>
+          )}
         </Button>
       </div>
     </HoverLift>
