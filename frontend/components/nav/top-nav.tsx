@@ -36,7 +36,7 @@ export function TopNav() {
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
 
-        <Brand />
+        <Brand size="md" />
 
         {/* Desktop category links */}
         <nav className="mx-auto hidden items-center gap-1 md:flex">

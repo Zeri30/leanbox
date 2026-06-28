@@ -96,7 +96,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
-          {!collapsed && <Brand href="/admin" />}
+          <Brand href="/admin" variant={collapsed ? "icon" : "full"} />
           <button
             type="button"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
