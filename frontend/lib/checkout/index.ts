@@ -31,7 +31,7 @@ export function useCreateAddress() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: NewAddress) =>
-      (await api.post<Address>("/addresses", payload)).data,
+      (await api.post<Address>("/addresses", payload, { timeoutMs: 20_000 })).data,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADDRESSES_QUERY_KEY });
     },
@@ -52,10 +52,16 @@ export function usePlaceOrder() {
   return useMutation({
     mutationFn: async ({ deliveryAddressId, paymentMethod = "cod" }: PlaceOrderVars) =>
       (
-        await api.post<Order>("/orders", {
-          delivery_address_id: deliveryAddressId,
-          payment_method: paymentMethod,
-        })
+        await api.post<Order>(
+          "/orders",
+          {
+            delivery_address_id: deliveryAddressId,
+            payment_method: paymentMethod,
+          },
+          // Order placement runs a multi-query transaction; give the slow remote
+          // dev DB room so the client doesn't abort an order that's still committing.
+          { timeoutMs: 30_000 },
+        )
       ).data,
     onSuccess: (order) => {
       queryClient.setQueryData(["order", order.id], order);
