@@ -83,6 +83,7 @@ export interface Product {
   updated_at: string | null;
   category?: Category;
   images?: ProductImage[];
+  nutrition?: NutritionFact | null;
   reviews_summary?: ReviewsSummary;
 }
 
@@ -92,4 +93,54 @@ export interface Pagination {
   last_page: number;
   per_page: number;
   total: number;
+}
+
+/** Mirrors backend App\Http\Resources\NutritionFactResource (macros are decimal strings). */
+export interface NutritionFact {
+  serving_size: string | null;
+  calories: number | null;
+  protein_g: string | null;
+  carbs_g: string | null;
+  fat_g: string | null;
+  fiber_g: string | null;
+  sugar_g: string | null;
+  sodium_mg: string | null;
+  ingredients: string | null;
+}
+
+/** Mirrors backend App\Http\Resources\ReviewResource. */
+export interface Review {
+  id: number;
+  product_id: number;
+  user_id: number;
+  rating: number;
+  comment: string | null;
+  is_hidden: boolean;
+  created_at: string | null;
+  reviewer?: string;
+}
+
+/** Mirrors backend App\Http\Resources\CartItemResource. */
+export interface CartItem {
+  id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: string;
+  line_total: string;
+  product?: {
+    id: number;
+    name: string;
+    slug: string;
+    price: string;
+    stock_status: StockStatus;
+    primary_image: string | null;
+  };
+}
+
+/** Mirrors backend App\Http\Resources\CartResource. */
+export interface Cart {
+  id: number;
+  items: CartItem[];
+  item_count: number;
+  subtotal: string;
 }

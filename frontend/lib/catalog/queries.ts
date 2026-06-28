@@ -1,6 +1,11 @@
 import type { ProductCardProps } from "@/components/product-card";
-import { api } from "@/lib/api";
-import type { Category, Pagination, Product } from "@/lib/types/api";
+import { api, ApiRequestError } from "@/lib/api";
+import type {
+  Category,
+  Pagination,
+  Product,
+  Review,
+} from "@/lib/types/api";
 
 /** Sort options accepted by GET /products (mirrors ProductController::applySort). */
 export const PRODUCT_SORTS = [
@@ -137,6 +142,37 @@ export function getBestSellers(limit = 8): Promise<ProductsPage> {
   return memo(`bestsellers:${limit}`, HOME_RAIL_TTL_MS, () =>
     getProducts({ bestSelling: true, perPage: limit }),
   );
+}
+
+/** Single product by slug (incl. category, images, nutrition, reviews_summary). Null if not found. */
+export async function getProduct(slug: string): Promise<Product | null> {
+  try {
+    const { data } = await api.get<Product>(
+      `/products/${encodeURIComponent(slug)}`,
+    );
+    return data;
+  } catch (e) {
+    if (e instanceof ApiRequestError && e.status === 404) return null;
+    throw e;
+  }
+}
+
+export interface ReviewsPage {
+  items: Review[];
+  pagination: Pagination;
+}
+
+/** Visible reviews for a product (paginated, newest first). Keyed by product id. */
+export async function getProductReviews(
+  productId: number,
+  page = 1,
+): Promise<ReviewsPage> {
+  const { data, meta } = await api.get<Review[]>(
+    `/products/${productId}/reviews?page=${page}`,
+  );
+  const pagination =
+    (meta?.pagination as Pagination | undefined) ?? FALLBACK_PAGINATION;
+  return { items: data, pagination };
 }
 
 /** Primary image URL for a product (falls back to the first image, if any). */
