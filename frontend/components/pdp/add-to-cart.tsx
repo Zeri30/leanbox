@@ -2,7 +2,7 @@
 
 import { Check, ShoppingCart } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { QuantityStepper, clampQuantity } from "@/components/pdp/quantity-stepper";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ export function AddToCart({
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const outOfStock = stock <= 0;
 
@@ -49,14 +50,18 @@ export function AddToCart({
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
+    // Optimistic feedback: show "Added" immediately (badge bumps via the hook),
+    // and only revert if the request actually fails.
+    setAdded(true);
+    if (addedTimer.current) clearTimeout(addedTimer.current);
     addToCart.mutate(
       { productId, quantity: clampQuantity(qty, 1, max) },
       {
         onSuccess: () => {
-          setAdded(true);
-          setTimeout(() => setAdded(false), FEEDBACK_MS);
+          addedTimer.current = setTimeout(() => setAdded(false), FEEDBACK_MS);
         },
         onError: (e) => {
+          setAdded(false);
           setError(
             e instanceof ApiRequestError
               ? e.message
@@ -84,12 +89,12 @@ export function AddToCart({
         >
           {outOfStock ? (
             "Out of stock"
-          ) : addToCart.isPending ? (
-            "Adding…"
           ) : added ? (
             <>
               <Check className="size-4" /> Added
             </>
+          ) : addToCart.isPending ? (
+            "Adding…"
           ) : (
             <>
               <ShoppingCart className="size-4" /> Add to cart

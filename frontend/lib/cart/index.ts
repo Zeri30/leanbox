@@ -38,28 +38,43 @@ export interface AddToCartVars {
   quantity: number;
 }
 
+interface CartMutationContext {
+  previous?: Cart;
+}
+
 /**
- * Add a product to the cart. On success the fresh cart is written into the
- * query cache, so the nav badge updates immediately without a refetch.
+ * Add a product to the cart. Optimistically bumps the cached item_count so the
+ * nav badge updates instantly (the slow DB then reconciles via onSuccess), with
+ * rollback on error.
  */
 export function useAddToCart() {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ productId, quantity }: AddToCartVars) =>
+  return useMutation<Cart, Error, AddToCartVars, CartMutationContext>({
+    mutationFn: async ({ productId, quantity }) =>
       (
         await api.post<Cart>("/cart/items", {
           product_id: productId,
           quantity,
         })
       ).data,
+    onMutate: async ({ quantity }) => {
+      await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
+      const previous = queryClient.getQueryData<Cart>(CART_QUERY_KEY);
+      if (previous) {
+        queryClient.setQueryData<Cart>(CART_QUERY_KEY, {
+          ...previous,
+          item_count: previous.item_count + quantity,
+        });
+      }
+      return { previous };
+    },
+    onError: (_e, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(CART_QUERY_KEY, ctx.previous);
+    },
     onSuccess: (cart) => {
       queryClient.setQueryData(CART_QUERY_KEY, cart);
     },
   });
-}
-
-interface CartMutationContext {
-  previous?: Cart;
 }
 
 /** Update a line item's quantity, with an optimistic cache update + rollback. */
