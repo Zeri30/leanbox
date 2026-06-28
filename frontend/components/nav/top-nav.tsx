@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Brand } from "@/components/nav/brand";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { useCartCount } from "@/lib/cart";
 import { NAV_CATEGORIES } from "@/lib/catalog/nav-categories";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const CATEGORIES = NAV_CATEGORIES.map((c) => ({
 export function TopNav() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
+  const cartCount = useCartCount();
   const [open, setOpen] = useState(false);
 
   return (
@@ -62,10 +64,17 @@ export function TopNav() {
           </Link>
           <Link
             href="/cart"
-            aria-label="Cart"
-            className="grid size-10 place-items-center rounded-lg text-muted-foreground hover:bg-elevated hover:text-foreground"
+            aria-label={
+              cartCount > 0 ? `Cart, ${cartCount} items` : "Cart"
+            }
+            className="relative grid size-10 place-items-center rounded-lg text-muted-foreground hover:bg-elevated hover:text-foreground"
           >
             <ShoppingCart className="size-5" />
+            {cartCount > 0 && (
+              <span className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-foreground">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
           </Link>
           {isAuthenticated ? (
             <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
