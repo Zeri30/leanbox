@@ -144,3 +144,81 @@ export interface Cart {
   item_count: number;
   subtotal: string;
 }
+
+/** Mirrors backend App\Http\Resources\AddressResource. */
+export interface Address {
+  id: number;
+  label: string | null;
+  recipient_name: string;
+  phone: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string | null;
+  postal_code: string | null;
+  country: string;
+  is_default: boolean;
+  created_at: string | null;
+}
+
+/** Payload for POST /addresses. */
+export interface NewAddress {
+  label?: string | null;
+  recipient_name: string;
+  phone: string;
+  line1: string;
+  line2?: string | null;
+  city: string;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+  is_default?: boolean;
+}
+
+/** Backend App\Enums\PaymentMethod. COD is the only active gateway for now. */
+export type PaymentMethod = "cod" | "gcash" | "card" | "paypal";
+
+/** Order lifecycle (App\Enums\OrderStatus). */
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "preparing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+/** Mirrors backend App\Http\Resources\OrderItemResource. */
+export interface OrderItem {
+  id: number;
+  product_id: number;
+  product_name: string;
+  quantity: number;
+  unit_price: string;
+  line_total: string;
+}
+
+/** Mirrors backend App\Http\Resources\PaymentResource. */
+export interface Payment {
+  id: number;
+  method: PaymentMethod;
+  status: string;
+  amount: string;
+  transaction_id: string | null;
+  paid_at: string | null;
+}
+
+/** Mirrors backend App\Http\Resources\OrderResource. */
+export interface Order {
+  id: number;
+  order_number: string;
+  status: OrderStatus;
+  subtotal: string;
+  shipping_fee: string;
+  tax: string;
+  total: string;
+  delivery_address_id: number;
+  placed_at: string | null;
+  created_at: string | null;
+  items?: OrderItem[];
+  payment?: Payment;
+}
