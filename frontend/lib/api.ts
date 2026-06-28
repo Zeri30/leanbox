@@ -44,25 +44,32 @@ export interface ApiResult<T> {
   meta: Record<string, unknown> | null;
 }
 
+/** RequestInit plus an optional per-call timeout (for slow endpoints). */
+export type ApiRequestInit = RequestInit & { timeoutMs?: number };
+
 async function request<T>(
   path: string,
-  init: RequestInit = {},
+  init: ApiRequestInit = {},
 ): Promise<ApiResult<T>> {
+  const { timeoutMs, ...fetchInit } = init;
   const token = resolveToken();
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    timeoutMs ?? REQUEST_TIMEOUT_MS,
+  );
 
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, {
-      ...init,
+      ...fetchInit,
       signal: controller.signal,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...init.headers,
+        ...fetchInit.headers,
       },
     });
   } catch {
@@ -104,20 +111,20 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T>(path: string, init?: RequestInit) =>
+  get: <T>(path: string, init?: ApiRequestInit) =>
     request<T>(path, { ...init, method: "GET" }),
-  post: <T>(path: string, payload?: unknown, init?: RequestInit) =>
+  post: <T>(path: string, payload?: unknown, init?: ApiRequestInit) =>
     request<T>(path, {
       ...init,
       method: "POST",
       body: payload != null ? JSON.stringify(payload) : undefined,
     }),
-  patch: <T>(path: string, payload?: unknown, init?: RequestInit) =>
+  patch: <T>(path: string, payload?: unknown, init?: ApiRequestInit) =>
     request<T>(path, {
       ...init,
       method: "PATCH",
       body: payload != null ? JSON.stringify(payload) : undefined,
     }),
-  delete: <T>(path: string, init?: RequestInit) =>
+  delete: <T>(path: string, init?: ApiRequestInit) =>
     request<T>(path, { ...init, method: "DELETE" }),
 };
