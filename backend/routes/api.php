@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartItemController;
@@ -58,6 +59,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/me', [ProfileController::class, 'show'])->name('users.me.show');
     Route::patch('users/me', [ProfileController::class, 'update'])->name('users.me.update');
     Route::patch('users/me/password', [ProfileController::class, 'updatePassword'])->name('users.me.password');
+
+    // Delivery addresses (checkout)
+    Route::get('addresses', [AddressController::class, 'index'])->name('addresses.index');
+    Route::post('addresses', [AddressController::class, 'store'])->name('addresses.store');
 
     // Cart (one per authenticated user)
     Route::get('cart', [CartController::class, 'show'])->name('cart.show');
