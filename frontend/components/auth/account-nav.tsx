@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  Bell,
   KeyRound,
   LogOut,
   Package,
   Repeat,
+  Star,
   User as UserIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -27,6 +29,8 @@ const ITEMS: Item[] = [
   { label: "Profile", href: "/account", icon: UserIcon },
   { label: "Orders", href: "/account/orders", icon: Package },
   { label: "Subscriptions", href: "/account/subscriptions", icon: Repeat },
+  { label: "Notifications", href: "/account/notifications", icon: Bell },
+  { label: "My reviews", href: "/account/reviews", icon: Star },
   { label: "Change password", href: "/account/password", icon: KeyRound },
 ];
 
