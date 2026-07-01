@@ -31,6 +31,17 @@ class NotificationController extends Controller
         );
     }
 
+    /**
+     * Lightweight unread count for the nav badge — a single COUNT query, no
+     * records fetched or serialized (keeps the badge cheap on every page).
+     */
+    public function unreadCount(Request $request): JsonResponse
+    {
+        return ApiResponse::success([
+            'count' => $request->user()->notifications()->unread()->count(),
+        ]);
+    }
+
     public function markRead(Request $request, Notification $notification): JsonResponse
     {
         abort_unless($notification->user_id === $request->user()->id, 403);

@@ -82,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Notifications (in-app feed)
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
     Route::patch('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     // Subscriptions (subscribe + manage)

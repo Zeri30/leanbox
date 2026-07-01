@@ -107,6 +107,18 @@ class ReviewTest extends TestCase
         $this->getJson('/api/v1/reviews/me')->assertOk()->assertJsonPath('meta.pagination.total', 2);
     }
 
+    public function test_my_reviews_include_the_product_name(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['name' => 'Rainbow Buddha Bowl']);
+        Review::factory()->for($product)->create(['user_id' => $user->id, 'rating' => 5]);
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/reviews/me')
+            ->assertOk()
+            ->assertJsonPath('data.0.product_name', 'Rainbow Buddha Bowl');
+    }
+
     public function test_admin_can_hide_a_review_and_it_disappears_from_the_storefront(): void
     {
         $product = Product::factory()->create();

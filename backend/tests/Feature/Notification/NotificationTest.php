@@ -91,6 +91,24 @@ class NotificationTest extends TestCase
             ->assertJsonPath('meta.pagination.total', 3);
     }
 
+    public function test_unread_count_endpoint_returns_only_the_users_unread_total(): void
+    {
+        $user = User::factory()->create();
+        Notification::factory()->count(3)->unread()->create(['user_id' => $user->id]);
+        Notification::factory()->create(['user_id' => $user->id, 'is_read' => true]);
+        Notification::factory()->count(5)->unread()->create(); // other users
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/notifications/unread-count')
+            ->assertOk()
+            ->assertJsonPath('data.count', 3);
+    }
+
+    public function test_unread_count_requires_authentication(): void
+    {
+        $this->getJson('/api/v1/notifications/unread-count')->assertStatus(401);
+    }
+
     public function test_marking_a_notification_read(): void
     {
         $user = User::factory()->create();
