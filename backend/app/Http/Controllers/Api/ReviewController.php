@@ -50,7 +50,7 @@ class ReviewController extends Controller
     /** The authenticated user's own reviews. */
     public function mine(Request $request): JsonResponse
     {
-        $reviews = $request->user()->reviews()->latest()->paginate(15);
+        $reviews = $request->user()->reviews()->with('product')->latest()->paginate(15);
 
         return ApiResponse::success(
             ReviewResource::collection($reviews->getCollection())->resolve(),
