@@ -9,7 +9,15 @@ import type {
   Pagination,
   Subscription,
   SubscriptionAction,
+  SubscriptionPlan,
 } from "@/lib/types/api";
+
+/** Selectable delivery cadences (App\Enums\DeliverySchedule), in display order. */
+export const DELIVERY_SCHEDULES: DeliverySchedule[] = [
+  "daily",
+  "weekly",
+  "biweekly",
+];
 
 export const SUBSCRIPTIONS_QUERY_KEY = ["subscriptions"] as const;
 
@@ -89,6 +97,71 @@ export function useManageSubscription() {
     }) =>
       (
         await api.patch<Subscription>(`/subscriptions/${id}`, { action })
+      ).data,
+    onSuccess: (subscription) => {
+      queryClient.setQueryData(
+        subscriptionQueryKey(subscription.id),
+        subscription,
+      );
+      queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_QUERY_KEY });
+    },
+  });
+}
+
+export const PLANS_QUERY_KEY = ["plans"] as const;
+
+/** Active subscription plans (public list, price-ascending). */
+export function usePlans() {
+  return useQuery({
+    queryKey: PLANS_QUERY_KEY,
+    queryFn: async () => (await api.get<SubscriptionPlan[]>("/plans")).data,
+    staleTime: 5 * 60_000,
+  });
+}
+
+/**
+ * A single plan by id, resolved from the plans list (there's no GET /plans/{id}).
+ * Returns { plan, isLoading, isError } so the subscribe page can render states.
+ */
+export function usePlan(id: number) {
+  const { data, isLoading, isError } = usePlans();
+  return {
+    plan: data?.find((p) => p.id === id) ?? null,
+    isLoading,
+    isError,
+  };
+}
+
+export interface SubscribeVars {
+  planId: number;
+  deliveryAddressId: number;
+  deliverySchedule: DeliverySchedule;
+}
+
+/**
+ * Subscribe to a plan (creates an active subscription + first COD cycle). Seeds
+ * the new subscription's detail cache and refreshes the list so it shows up in
+ * Account → Subscriptions immediately.
+ */
+export function useSubscribe() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      planId,
+      deliveryAddressId,
+      deliverySchedule,
+    }: SubscribeVars) =>
+      (
+        await api.post<Subscription>(
+          "/subscriptions",
+          {
+            plan_id: planId,
+            delivery_address_id: deliveryAddressId,
+            delivery_schedule: deliverySchedule,
+          },
+          // Subscribe runs a multi-insert transaction; give the DB headroom.
+          { timeoutMs: 30_000 },
+        )
       ).data,
     onSuccess: (subscription) => {
       queryClient.setQueryData(

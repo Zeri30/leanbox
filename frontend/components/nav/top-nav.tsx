@@ -51,6 +51,12 @@ export function TopNav() {
               {c.label}
             </Link>
           ))}
+          <Link
+            href="/plans"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-elevated"
+          >
+            Meal Plans
+          </Link>
         </nav>
 
         {/* Right actions */}
@@ -106,6 +112,16 @@ export function TopNav() {
               {c.label}
             </Link>
           ))}
+          <Link
+            href="/plans"
+            onClick={() => setOpen(false)}
+            className={cn(
+              "block rounded-lg px-3 py-2.5 text-sm font-semibold text-primary hover:bg-elevated",
+              pathname === "/plans" && "bg-elevated",
+            )}
+          >
+            Meal Plans
+          </Link>
           <Link
             href={isAuthenticated ? "/account" : "/login"}
             onClick={() => setOpen(false)}
