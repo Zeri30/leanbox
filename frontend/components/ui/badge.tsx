@@ -34,8 +34,9 @@ export function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 /**
- * Order/delivery status → badge variant.
- * Lifecycle: pending → confirmed → preparing → shipped → delivered (or cancelled).
+ * Status → badge variant, covering order/delivery lifecycles
+ * (pending → confirmed → preparing → shipped → delivered / cancelled) and
+ * subscription statuses (active / paused / cancelled).
  */
 const ORDER_STATUS_VARIANT: Record<string, BadgeProps["variant"]> = {
   pending: "warning",
@@ -46,6 +47,9 @@ const ORDER_STATUS_VARIANT: Record<string, BadgeProps["variant"]> = {
   delivered: "success",
   cancelled: "destructive",
   failed: "destructive",
+  // Subscription lifecycle
+  active: "success",
+  paused: "warning",
 };
 
 export function StatusBadge({

@@ -1,6 +1,13 @@
 "use client";
 
-import { KeyRound, LogOut, User as UserIcon, type LucideIcon } from "lucide-react";
+import {
+  KeyRound,
+  LogOut,
+  Package,
+  Repeat,
+  User as UserIcon,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,6 +25,8 @@ interface Item {
 
 const ITEMS: Item[] = [
   { label: "Profile", href: "/account", icon: UserIcon },
+  { label: "Orders", href: "/account/orders", icon: Package },
+  { label: "Subscriptions", href: "/account/subscriptions", icon: Repeat },
   { label: "Change password", href: "/account/password", icon: KeyRound },
 ];
 
@@ -36,7 +45,12 @@ export function AccountNav() {
   return (
     <nav className="flex flex-row gap-1 overflow-x-auto sm:flex-col sm:overflow-visible">
       {ITEMS.map((item) => {
-        const active = pathname === item.href;
+        // Exact match for the index (/account); prefix match for sub-sections
+        // so detail routes (e.g. /account/orders/12) keep their tab active.
+        const active =
+          item.href === "/account"
+            ? pathname === item.href
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
         return (
           <Link

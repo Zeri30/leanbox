@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { cn, formatPHP } from "@/lib/utils";
+import { cn, formatDate, formatPHP } from "@/lib/utils";
 
 describe("formatPHP", () => {
   it("formats numbers as Philippine Peso with two decimals", () => {
@@ -14,6 +14,18 @@ describe("formatPHP", () => {
 
   it("falls back to zero for non-numeric input", () => {
     expect(formatPHP("abc")).toBe("₱0.00");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats an ISO date as a short readable date", () => {
+    expect(formatDate("2026-07-01")).toBe("Jul 1, 2026");
+  });
+
+  it("returns an em dash for null/empty/invalid input", () => {
+    expect(formatDate(null)).toBe("—");
+    expect(formatDate(undefined)).toBe("—");
+    expect(formatDate("not-a-date")).toBe("—");
   });
 });
 
