@@ -112,12 +112,34 @@ export interface NutritionFact {
 export interface Review {
   id: number;
   product_id: number;
+  /** Present when the product is eager-loaded (e.g. GET /reviews/me). */
+  product_name?: string;
   user_id: number;
   rating: number;
   comment: string | null;
   is_hidden: boolean;
   created_at: string | null;
   reviewer?: string;
+}
+
+/** Notification categories (App\Enums\NotificationType). */
+export type NotificationType =
+  | "order_update"
+  | "subscription"
+  | "promotion"
+  | "new_order"
+  | "low_stock"
+  | "delivery_assigned"
+  | "system";
+
+/** Mirrors backend App\Http\Resources\NotificationResource. */
+export interface Notification {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string | null;
 }
 
 /** Mirrors backend App\Http\Resources\CartItemResource. */

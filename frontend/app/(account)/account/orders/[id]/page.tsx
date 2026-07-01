@@ -8,11 +8,13 @@ import { useState } from "react";
 import { FormBanner } from "@/components/auth/field";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { OrderTimeline } from "@/components/orders/order-timeline";
+import { OrderItemReview } from "@/components/reviews/order-item-review";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { errorMessage } from "@/lib/auth";
 import { useCancelOrder, useOrder } from "@/lib/orders";
+import { useMyReviewsByProduct } from "@/lib/reviews";
 import { formatDate, formatPHP } from "@/lib/utils";
 
 export default function OrderDetailPage() {
@@ -20,6 +22,7 @@ export default function OrderDetailPage() {
   const id = Number(Array.isArray(params.id) ? params.id[0] : params.id);
   const { data: order, isLoading, isError } = useOrder(id);
   const cancel = useCancelOrder();
+  const reviewsByProduct = useMyReviewsByProduct();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
@@ -73,6 +76,7 @@ export default function OrderDetailPage() {
   }
 
   const canCancel = order.status === "pending";
+  const isDelivered = order.status === "delivered";
 
   return (
     <div className="flex flex-col gap-6">
@@ -101,14 +105,22 @@ export default function OrderDetailPage() {
         <h2 className="mb-4 text-lg font-semibold">Items</h2>
         <ul className="flex flex-col gap-2 text-sm">
           {order.items?.map((item) => (
-            <li key={item.id} className="flex justify-between gap-3">
-              <span className="min-w-0 truncate text-muted-foreground">
-                {item.product_name}
-                <span className="text-subtle"> × {item.quantity}</span>
-              </span>
-              <span className="shrink-0 tabular-nums text-foreground">
-                {formatPHP(item.line_total)}
-              </span>
+            <li key={item.id} className="flex flex-col">
+              <div className="flex justify-between gap-3">
+                <span className="min-w-0 truncate text-muted-foreground">
+                  {item.product_name}
+                  <span className="text-subtle"> × {item.quantity}</span>
+                </span>
+                <span className="shrink-0 tabular-nums text-foreground">
+                  {formatPHP(item.line_total)}
+                </span>
+              </div>
+              {isDelivered && (
+                <OrderItemReview
+                  productId={item.product_id}
+                  existingReview={reviewsByProduct.get(item.product_id) ?? null}
+                />
+              )}
             </li>
           ))}
         </ul>

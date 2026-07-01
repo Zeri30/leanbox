@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { cn, formatDate, formatPHP } from "@/lib/utils";
+import { cn, formatDate, formatPHP, formatRelativeTime } from "@/lib/utils";
 
 describe("formatPHP", () => {
   it("formats numbers as Philippine Peso with two decimals", () => {
@@ -26,6 +26,26 @@ describe("formatDate", () => {
     expect(formatDate(null)).toBe("—");
     expect(formatDate(undefined)).toBe("—");
     expect(formatDate("not-a-date")).toBe("—");
+  });
+});
+
+describe("formatRelativeTime", () => {
+  const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
+
+  it("formats recent times compactly", () => {
+    expect(formatRelativeTime(ago(10_000))).toBe("just now");
+    expect(formatRelativeTime(ago(5 * 60_000))).toBe("5m ago");
+    expect(formatRelativeTime(ago(2 * 60 * 60_000))).toBe("2h ago");
+    expect(formatRelativeTime(ago(3 * 24 * 60 * 60_000))).toBe("3d ago");
+  });
+
+  it("falls back to an absolute date beyond a week", () => {
+    expect(formatRelativeTime(ago(30 * 24 * 60 * 60_000))).toMatch(/\d{4}/);
+  });
+
+  it("returns an empty string for null/invalid input", () => {
+    expect(formatRelativeTime(null)).toBe("");
+    expect(formatRelativeTime("nope")).toBe("");
   });
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { Bell, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { Brand } from "@/components/nav/brand";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useCartCount } from "@/lib/cart";
+import { useUnreadNotificationCount } from "@/lib/notifications";
 import { NAV_CATEGORIES } from "@/lib/catalog/nav-categories";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ export function TopNav() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const cartCount = useCartCount();
+  const unreadNotifications = useUnreadNotificationCount();
   const [open, setOpen] = useState(false);
 
   return (
@@ -82,6 +84,24 @@ export function TopNav() {
               </span>
             )}
           </Link>
+          {isAuthenticated && (
+            <Link
+              href="/account/notifications"
+              aria-label={
+                unreadNotifications > 0
+                  ? `Notifications, ${unreadNotifications} unread`
+                  : "Notifications"
+              }
+              className="relative grid size-10 place-items-center rounded-lg text-muted-foreground hover:bg-elevated hover:text-foreground"
+            >
+              <Bell className="size-5" />
+              {unreadNotifications > 0 && (
+                <span className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-foreground">
+                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                </span>
+              )}
+            </Link>
+          )}
           {isAuthenticated ? (
             <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
               <Link href="/account" aria-label="Account">
