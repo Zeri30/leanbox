@@ -222,3 +222,56 @@ export interface Order {
   items?: OrderItem[];
   payment?: Payment;
 }
+
+/* ---------------------------------------------------------------------------
+ * Subscriptions — mirrors backend Subscription resources.
+ * ------------------------------------------------------------------------ */
+
+/** Subscription lifecycle (App\Enums\SubscriptionStatus). */
+export type SubscriptionStatus = "active" | "paused" | "cancelled";
+
+/** Cadence a subscription is delivered/billed on (App\Enums\DeliverySchedule). */
+export type DeliverySchedule = "daily" | "weekly" | "biweekly";
+
+/** Plan billing cadence (App\Enums\BillingInterval). */
+export type BillingInterval = "weekly" | "monthly";
+
+/** Plan meal focus (App\Enums\MealType). */
+export type MealType = "vegetarian" | "high_protein" | "mixed";
+
+/** Actions accepted by PATCH /subscriptions/{id} (App\...\ManageSubscriptionRequest). */
+export type SubscriptionAction = "pause" | "resume" | "cancel";
+
+/** Mirrors backend App\Http\Resources\SubscriptionPlanResource (price is decimal string). */
+export interface SubscriptionPlan {
+  id: number;
+  name: string;
+  description: string | null;
+  meal_type: MealType;
+  price: string;
+  billing_interval: BillingInterval;
+  meals_per_cycle: number;
+  is_active: boolean;
+}
+
+/** Mirrors backend App\Http\Resources\SubscriptionPaymentResource. */
+export interface SubscriptionPayment {
+  id: number;
+  amount: string;
+  status: string;
+  billing_date: string | null;
+  paid_at: string | null;
+}
+
+/** Mirrors backend App\Http\Resources\SubscriptionResource. */
+export interface Subscription {
+  id: number;
+  status: SubscriptionStatus;
+  delivery_schedule: DeliverySchedule;
+  start_date: string | null;
+  next_delivery_date: string | null;
+  cancelled_at: string | null;
+  delivery_address_id: number;
+  plan?: SubscriptionPlan;
+  payments?: SubscriptionPayment[];
+}

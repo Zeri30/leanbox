@@ -18,3 +18,25 @@ export function formatPHP(amount: number | string): string {
   const value = typeof amount === "string" ? Number(amount) : amount;
   return phpFormatter.format(Number.isFinite(value) ? value : 0);
 }
+
+const DATE_OPTS: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+};
+const dateFormatter = new Intl.DateTimeFormat("en-PH", DATE_OPTS);
+// Date-only strings (YYYY-MM-DD) are parsed as UTC midnight; format them in UTC
+// so the calendar date never shifts by a day in timezones behind UTC.
+const utcDateFormatter = new Intl.DateTimeFormat("en-PH", {
+  ...DATE_OPTS,
+  timeZone: "UTC",
+});
+
+/** Format an ISO date/datetime string as e.g. "Jul 1, 2026". Returns "—" for null/invalid. */
+export function formatDate(value: string | null | undefined): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  return (dateOnly ? utcDateFormatter : dateFormatter).format(date);
+}
