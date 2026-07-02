@@ -243,6 +243,8 @@ export interface Order {
   created_at: string | null;
   items?: OrderItem[];
   payment?: Payment;
+  /** Present on admin order endpoints (OrderResource `customer`, whenLoaded). */
+  customer?: User;
 }
 
 /* ---------------------------------------------------------------------------
@@ -294,6 +296,8 @@ export interface Subscription {
   next_delivery_date: string | null;
   cancelled_at: string | null;
   delivery_address_id: number;
+  /** Present on admin subscription endpoints (SubscriptionResource `user`, whenLoaded). */
+  user?: User;
   plan?: SubscriptionPlan;
   payments?: SubscriptionPayment[];
 }
