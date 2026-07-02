@@ -24,6 +24,7 @@ class SubscriptionResource extends JsonResource
             'next_delivery_date' => $this->next_delivery_date?->toDateString(),
             'cancelled_at' => $this->cancelled_at?->toDateString(),
             'delivery_address_id' => $this->delivery_address_id,
+            'user' => UserResource::make($this->whenLoaded('user')),
             'plan' => SubscriptionPlanResource::make($this->whenLoaded('plan')),
             'payments' => SubscriptionPaymentResource::collection($this->whenLoaded('payments')),
         ];
