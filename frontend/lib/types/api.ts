@@ -353,6 +353,10 @@ export interface Delivery {
   /** Present on admin delivery endpoints (whenLoaded). */
   order?: { id: number; order_number: string };
   address?: Address;
+  /** Line items for order-based deliveries (rider endpoints). */
+  items?: { product_name: string; quantity: number }[];
+  /** Plan summary for subscription-cycle deliveries (rider endpoints). */
+  plan?: { name: string; meals_per_cycle: number };
 }
 
 /** GET /admin/reviews/stats. */
