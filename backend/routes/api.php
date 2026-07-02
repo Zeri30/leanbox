@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CartController;
@@ -122,6 +123,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('plans', AdminPlanController::class)
         ->only(['index', 'store', 'update', 'destroy'])
         ->names('admin.plans');
+
+    // Subscriptions (read-only oversight)
+    Route::get('subscriptions', [AdminSubscriptionController::class, 'index'])->name('admin.subscriptions.index');
+    Route::get('subscriptions/{subscription}', [AdminSubscriptionController::class, 'show'])->name('admin.subscriptions.show');
 
     // Order management
     Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
