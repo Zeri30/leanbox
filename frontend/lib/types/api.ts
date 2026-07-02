@@ -327,3 +327,40 @@ export interface BestSeller {
   units: number;
   revenue: string;
 }
+
+/** Delivery lifecycle (App\Enums\DeliveryStatus). */
+export type DeliveryStatus =
+  | "pending"
+  | "assigned"
+  | "out_for_delivery"
+  | "delivered"
+  | "failed";
+
+/** Mirrors backend App\Http\Resources\DeliveryResource. */
+export interface Delivery {
+  id: number;
+  order_id: number | null;
+  subscription_id: number | null;
+  rider_id: number | null;
+  delivery_address_id: number;
+  status: DeliveryStatus;
+  assigned_at: string | null;
+  delivered_at: string | null;
+  proof_image_url: string | null;
+  delivery_notes: string | null;
+  created_at: string | null;
+  rider?: User;
+  /** Present on admin delivery endpoints (whenLoaded). */
+  order?: { id: number; order_number: string };
+  address?: Address;
+}
+
+/** GET /admin/reviews/stats. */
+export interface ReviewStats {
+  total: number;
+  visible: number;
+  hidden: number;
+  average_rating: number | null;
+  /** Keyed "1".."5" → count of visible reviews at that rating. */
+  rating_distribution: Record<string, number>;
+}
