@@ -43,6 +43,7 @@ const ORDER_STATUS_VARIANT: Record<string, BadgeProps["variant"]> = {
   confirmed: "info",
   preparing: "info",
   shipped: "info",
+  assigned: "info",
   out_for_delivery: "info",
   delivered: "success",
   cancelled: "destructive",
