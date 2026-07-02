@@ -60,6 +60,11 @@ async function request<T>(
     timeoutMs ?? REQUEST_TIMEOUT_MS,
   );
 
+  // For multipart uploads the browser must set Content-Type (with boundary);
+  // forcing application/json would corrupt the body.
+  const isFormData =
+    typeof FormData !== "undefined" && fetchInit.body instanceof FormData;
+
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, {
@@ -67,7 +72,7 @@ async function request<T>(
       signal: controller.signal,
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...fetchInit.headers,
       },
@@ -117,6 +122,15 @@ export const api = {
     request<T>(path, {
       ...init,
       method: "POST",
+      body: payload != null ? JSON.stringify(payload) : undefined,
+    }),
+  /** Multipart POST for file uploads (browser sets the Content-Type boundary). */
+  upload: <T>(path: string, form: FormData, init?: ApiRequestInit) =>
+    request<T>(path, { ...init, method: "POST", body: form }),
+  put: <T>(path: string, payload?: unknown, init?: ApiRequestInit) =>
+    request<T>(path, {
+      ...init,
+      method: "PUT",
       body: payload != null ? JSON.stringify(payload) : undefined,
     }),
   patch: <T>(path: string, payload?: unknown, init?: ApiRequestInit) =>
