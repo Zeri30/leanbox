@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { notificationAction } from "@/lib/notifications";
+import { notificationAction, type NotificationAction } from "@/lib/notifications";
 import type { Notification, NotificationType } from "@/lib/types/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
@@ -42,12 +42,19 @@ function iconTone(type: NotificationType): string {
 export function NotificationCard({
   notification,
   onMarkRead,
+  resolveAction = notificationAction,
 }: {
   notification: Notification;
   onMarkRead: (id: number) => void;
+  /**
+   * Maps a notification type to its contextual action. Defaults to the
+   * customer routes; other roles (e.g. riders) pass a role-appropriate resolver
+   * so links don't point at areas they can't access.
+   */
+  resolveAction?: (type: NotificationType) => NotificationAction | null;
 }) {
   const Icon = TYPE_ICON[notification.type] ?? Bell;
-  const action = notificationAction(notification.type);
+  const action = resolveAction(notification.type);
   const unread = !notification.is_read;
 
   return (
