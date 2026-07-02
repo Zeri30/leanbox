@@ -10,7 +10,7 @@ import type { Delivery } from "@/lib/types/api";
 export function DeliveryCard({ delivery }: { delivery: Delivery }) {
   return (
     <Link href={`/rider/deliveries/${delivery.id}`} className="block">
-      <Card className="flex items-center gap-3 transition-colors hover:border-primary active:scale-[0.99]">
+      <Card className="flex items-center gap-3 transition-colors hover:border-primary active:scale-[0.99] motion-reduce:active:scale-100">
         <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="truncate font-semibold text-foreground">

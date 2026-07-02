@@ -63,7 +63,15 @@ export function StatusBadge({
   const variant = ORDER_STATUS_VARIANT[status] ?? "neutral";
   const label = status.replace(/_/g, " ");
   return (
-    <Badge variant={variant} className={cn("capitalize", className)}>
+    // Keyed on status so a change remounts the badge and the new state fades in (§8).
+    <Badge
+      key={status}
+      variant={variant}
+      className={cn(
+        "capitalize [animation:var(--animate-status)] motion-reduce:animate-none",
+        className,
+      )}
+    >
       {label}
     </Badge>
   );

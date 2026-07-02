@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
 import { Fragment, useState } from "react";
 
 import { useToast } from "@/components/toast";
@@ -245,15 +244,13 @@ function ManagePanel({ delivery }: { delivery: Delivery }) {
             <p className="mb-1.5 text-xs uppercase tracking-wide text-muted-foreground">
               Proof of delivery
             </p>
-            <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-lg border border-border">
-              <Image
-                src={delivery.proof_image_url}
-                alt="Proof of delivery"
-                fill
-                sizes="320px"
-                className="object-cover"
-              />
-            </div>
+            {/* User-uploaded proof — load directly (no next/image optimizer). */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={delivery.proof_image_url}
+              alt="Proof of delivery"
+              className="w-full max-w-xs rounded-lg border border-border object-cover"
+            />
           </div>
         )}
       </div>

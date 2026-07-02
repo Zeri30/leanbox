@@ -95,7 +95,7 @@ export function ProductCard({
               alt={name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-subtle">
