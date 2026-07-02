@@ -138,6 +138,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('inventory/low-stock', [AdminInventoryController::class, 'lowStock'])->name('admin.inventory.low-stock');
     Route::get('dashboard/summary', [AdminDashboardController::class, 'summary'])->name('admin.dashboard.summary');
     Route::get('analytics/best-sellers', [AdminDashboardController::class, 'bestSellers'])->name('admin.analytics.best-sellers');
+    Route::get('analytics/revenue', [AdminDashboardController::class, 'revenue'])->name('admin.analytics.revenue');
 
     // Delivery management
     Route::get('deliveries', [AdminDeliveryController::class, 'index'])->name('admin.deliveries.index');

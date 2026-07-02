@@ -31,6 +31,52 @@ class AnalyticsService
     }
 
     /**
+     * Daily gross revenue for the last $days days (delivered orders + paid subscription
+     * payments), zero-filled so the chart always has a continuous axis. Bucketed in PHP
+     * to stay portable across Postgres (dev) and SQLite (tests); cached briefly.
+     *
+     * @return array<int, array{date: string, revenue: string}>
+     */
+    public function revenueSeries(int $days = 30): array
+    {
+        $days = max(7, min($days, 90));
+        $start = now()->startOfDay()->subDays($days - 1);
+
+        return Cache::remember("admin.dashboard.revenue.{$days}", now()->addSeconds(60), function () use ($days, $start) {
+            // Zero-filled buckets keyed by Y-m-d, oldest first.
+            $buckets = [];
+            for ($i = 0; $i < $days; $i++) {
+                $buckets[$start->copy()->addDays($i)->toDateString()] = 0.0;
+            }
+
+            $add = function ($createdAt, $amount) use (&$buckets): void {
+                $key = $createdAt?->toDateString();
+                if ($key !== null && isset($buckets[$key])) {
+                    $buckets[$key] += (float) $amount;
+                }
+            };
+
+            Order::query()
+                ->where('status', OrderStatus::Delivered)
+                ->where('created_at', '>=', $start)
+                ->get(['created_at', 'total'])
+                ->each(fn (Order $o) => $add($o->created_at, $o->total));
+
+            SubscriptionPayment::query()
+                ->where('status', PaymentStatus::Paid)
+                ->where('created_at', '>=', $start)
+                ->get(['created_at', 'amount'])
+                ->each(fn (SubscriptionPayment $p) => $add($p->created_at, $p->amount));
+
+            return array_map(
+                fn (string $date, float $revenue) => ['date' => $date, 'revenue' => sprintf('%.2f', $revenue)],
+                array_keys($buckets),
+                array_values($buckets),
+            );
+        });
+    }
+
+    /**
      * Best-selling products ranked by units sold (then revenue), excluding cancelled orders.
      *
      * @return array<int, array<string, mixed>>
