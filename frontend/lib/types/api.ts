@@ -297,3 +297,29 @@ export interface Subscription {
   plan?: SubscriptionPlan;
   payments?: SubscriptionPayment[];
 }
+
+/* ---------------------------------------------------------------------------
+ * Admin analytics — mirrors backend AnalyticsService output.
+ * ------------------------------------------------------------------------ */
+
+/** GET /admin/dashboard/summary — KPI totals (revenue is a decimal string). */
+export interface DashboardSummary {
+  products: number;
+  orders: number;
+  active_subscriptions: number;
+  revenue: string;
+}
+
+/** One point in GET /admin/analytics/revenue (date is Y-m-d, revenue decimal string). */
+export interface RevenuePoint {
+  date: string;
+  revenue: string;
+}
+
+/** One row in GET /admin/analytics/best-sellers. */
+export interface BestSeller {
+  product_id: number;
+  name: string | null;
+  units: number;
+  revenue: string;
+}
