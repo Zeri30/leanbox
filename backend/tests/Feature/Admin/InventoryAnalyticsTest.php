@@ -91,12 +91,38 @@ class InventoryAnalyticsTest extends TestCase
         $this->assertSame(2, $res->json('data.1.units')); // cancelled order's 100 excluded
     }
 
+    public function test_revenue_series_is_zero_filled_and_buckets_by_day(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Order::factory()->create(['status' => OrderStatus::Delivered, 'total' => 200, 'created_at' => now()]);
+        Order::factory()->create(['status' => OrderStatus::Pending, 'total' => 999, 'created_at' => now()]); // excluded (not delivered)
+        $sub = Subscription::factory()->create();
+        SubscriptionPayment::factory()->create(['subscription_id' => $sub->id, 'status' => PaymentStatus::Paid, 'amount' => 50, 'created_at' => now()]);
+        Sanctum::actingAs($admin);
+
+        $data = $this->getJson('/api/v1/admin/analytics/revenue?days=7')->assertOk()->json('data');
+
+        $this->assertCount(7, $data);
+        $this->assertSame(now()->toDateString(), $data[6]['date']); // today is the last bucket
+        $this->assertSame('250.00', $data[6]['revenue']); // 200 delivered order + 50 paid sub
+        $this->assertSame('0.00', $data[0]['revenue']); // oldest day has no revenue
+    }
+
+    public function test_revenue_series_clamps_days_out_of_range(): void
+    {
+        Sanctum::actingAs(User::factory()->admin()->create());
+
+        $this->assertCount(7, $this->getJson('/api/v1/admin/analytics/revenue?days=1')->assertOk()->json('data'));
+        $this->assertCount(90, $this->getJson('/api/v1/admin/analytics/revenue?days=365')->assertOk()->json('data'));
+    }
+
     public function test_non_admins_cannot_access_inventory_or_analytics(): void
     {
         $product = Product::factory()->create();
         Sanctum::actingAs(User::factory()->customer()->create());
 
         $this->getJson('/api/v1/admin/dashboard/summary')->assertStatus(403);
+        $this->getJson('/api/v1/admin/analytics/revenue')->assertStatus(403);
         $this->getJson('/api/v1/admin/analytics/best-sellers')->assertStatus(403);
         $this->getJson('/api/v1/admin/inventory/low-stock')->assertStatus(403);
         $this->patchJson("/api/v1/admin/products/{$product->id}/stock", ['stock_quantity' => 5])->assertStatus(403);
