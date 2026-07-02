@@ -9,7 +9,6 @@ import {
   Package,
   Phone,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
@@ -167,15 +166,13 @@ function DeliveryDetail({ delivery }: { delivery: Delivery }) {
             <p className="text-sm text-foreground">“{delivery.delivery_notes}”</p>
           )}
           {delivery.proof_image_url && (
-            <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border">
-              <Image
-                src={delivery.proof_image_url}
-                alt="Proof of delivery"
-                fill
-                sizes="(max-width: 640px) 100vw, 640px"
-                className="object-cover"
-              />
-            </div>
+            // User-uploaded proof — load directly (no next/image optimizer/remotePatterns).
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={delivery.proof_image_url}
+              alt="Proof of delivery"
+              className="w-full rounded-xl border border-border object-cover"
+            />
           )}
         </Card>
       ) : (
