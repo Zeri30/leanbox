@@ -44,6 +44,19 @@ class AdminUserTest extends TestCase
         $this->assertSame('alice@example.com', $res->json('data.0.email'));
     }
 
+    public function test_riders_list_returns_active_riders_only(): void
+    {
+        User::factory()->rider()->create(['full_name' => 'Rider One']);
+        User::factory()->rider()->create(['full_name' => 'Rider Two', 'status' => UserStatus::Suspended]);
+        User::factory()->customer()->create();
+        Sanctum::actingAs(User::factory()->admin()->create());
+
+        $res = $this->getJson('/api/v1/admin/riders')->assertOk();
+
+        $this->assertCount(1, $res->json('data'));
+        $this->assertSame('Rider One', $res->json('data.0.full_name'));
+    }
+
     public function test_admin_can_suspend_and_reactivate_a_customer(): void
     {
         $customer = User::factory()->customer()->create();

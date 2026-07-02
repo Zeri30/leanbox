@@ -80,6 +80,21 @@ class AdminDeliveryTest extends TestCase
             ->assertOk()->assertJsonPath('meta.pagination.total', 1);
     }
 
+    public function test_delivery_list_includes_order_number_and_address(): void
+    {
+        $order = Order::factory()->create();
+        Delivery::factory()->create([
+            'order_id' => $order->id,
+            'delivery_address_id' => $order->delivery_address_id,
+        ]);
+        $this->actingAdmin();
+
+        $res = $this->getJson('/api/v1/admin/deliveries')->assertOk();
+
+        $this->assertSame($order->order_number, $res->json('data.0.order.order_number'));
+        $this->assertSame($order->delivery_address_id, $res->json('data.0.address.id'));
+    }
+
     public function test_admin_can_assign_a_rider_and_the_rider_is_notified(): void
     {
         Event::fake([DeliveryAssigned::class]);

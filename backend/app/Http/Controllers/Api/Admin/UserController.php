@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateUserStatusRequest;
 use App\Http\Resources\UserResource;
@@ -38,6 +39,18 @@ class UserController extends Controller
                 'total' => $users->total(),
             ]],
         );
+    }
+
+    /** Active riders, for the delivery assignment picker (unpaginated). */
+    public function riders(): JsonResponse
+    {
+        $riders = User::query()
+            ->where('role', UserRole::Rider)
+            ->where('status', UserStatus::Active)
+            ->orderBy('full_name')
+            ->get();
+
+        return ApiResponse::success(UserResource::collection($riders)->resolve());
     }
 
     public function updateStatus(UpdateUserStatusRequest $request, User $user): JsonResponse

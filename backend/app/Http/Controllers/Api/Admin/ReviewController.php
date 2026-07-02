@@ -8,9 +8,31 @@ use App\Http\Resources\ReviewResource;
 use App\Models\Review;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
+    /** All reviews (incl. hidden) for moderation, newest first. Filter by ?hidden=0|1 and ?rating. */
+    public function index(Request $request): JsonResponse
+    {
+        $reviews = Review::query()
+            ->with(['product:id,name', 'user:id,full_name'])
+            ->when($request->has('hidden'), fn ($q) => $q->where('is_hidden', $request->boolean('hidden')))
+            ->when($request->filled('rating'), fn ($q) => $q->where('rating', $request->integer('rating')))
+            ->orderByDesc('id')
+            ->paginate(15);
+
+        return ApiResponse::success(
+            ReviewResource::collection($reviews->getCollection())->resolve(),
+            ['pagination' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'per_page' => $reviews->perPage(),
+                'total' => $reviews->total(),
+            ]],
+        );
+    }
+
     /** Hide/unhide a review (data is retained, just excluded from the storefront). */
     public function update(ModerateReviewRequest $request, Review $review): JsonResponse
     {

@@ -101,6 +101,7 @@ Route::get('/user', fn (Request $request) => ApiResponse::success(new UserResour
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('ping', fn () => ApiResponse::success(['scope' => 'admin']))->name('admin.ping');
     Route::get('users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::get('riders', [AdminUserController::class, 'riders'])->name('admin.riders.index');
     Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('admin.users.status');
 
     // Catalog management
@@ -135,6 +136,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::patch('orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
 
     // Review moderation
+    Route::get('reviews', [AdminReviewController::class, 'index'])->name('admin.reviews.index');
     Route::get('reviews/stats', [AdminReviewController::class, 'stats'])->name('admin.reviews.stats');
     Route::patch('reviews/{review}', [AdminReviewController::class, 'update'])->name('admin.reviews.update');
 

@@ -24,7 +24,7 @@ class DeliveryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $deliveries = Delivery::query()
-            ->with('rider')
+            ->with(['rider', 'order:id,order_number', 'deliveryAddress'])
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->query('status')))
             ->when($request->filled('rider_id'), fn ($q) => $q->where('rider_id', $request->integer('rider_id')))
             ->orderByDesc('id')
