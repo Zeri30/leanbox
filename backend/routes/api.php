@@ -159,6 +159,7 @@ Route::middleware(['auth:sanctum', 'role:rider'])->prefix('rider')->group(functi
     Route::get('ping', fn () => ApiResponse::success(['scope' => 'rider']))->name('rider.ping');
 
     Route::get('deliveries', [RiderDeliveryController::class, 'index'])->name('rider.deliveries.index');
+    Route::get('deliveries/{delivery}', [RiderDeliveryController::class, 'show'])->name('rider.deliveries.show');
     Route::patch('deliveries/{delivery}/status', [RiderDeliveryController::class, 'updateStatus'])->name('rider.deliveries.status');
     Route::post('deliveries/{delivery}/proof', [RiderDeliveryController::class, 'proof'])->name('rider.deliveries.proof');
 });

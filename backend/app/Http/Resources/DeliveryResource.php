@@ -34,6 +34,23 @@ class DeliveryResource extends JsonResource
                 'order_number' => $this->order->order_number,
             ]),
             'address' => AddressResource::make($this->whenLoaded('deliveryAddress')),
+            // Line items (order deliveries) — only when order.items is eager-loaded
+            // (rider endpoints); guarded so admin's lighter eager-load isn't affected.
+            'items' => $this->when(
+                $this->relationLoaded('order') && $this->order?->relationLoaded('items'),
+                fn () => $this->order->items->map(fn ($item) => [
+                    'product_name' => $item->product_name,
+                    'quantity' => $item->quantity,
+                ])->all(),
+            ),
+            // Plan summary (subscription deliveries) — only when subscription.plan is loaded.
+            'plan' => $this->when(
+                $this->relationLoaded('subscription') && $this->subscription?->relationLoaded('plan'),
+                fn () => $this->subscription->plan ? [
+                    'name' => $this->subscription->plan->name,
+                    'meals_per_cycle' => $this->subscription->plan->meals_per_cycle,
+                ] : null,
+            ),
         ];
     }
 }
