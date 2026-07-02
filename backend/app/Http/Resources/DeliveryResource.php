@@ -29,6 +29,11 @@ class DeliveryResource extends JsonResource
             'delivery_notes' => $this->delivery_notes,
             'created_at' => $this->created_at,
             'rider' => UserResource::make($this->whenLoaded('rider')),
+            'order' => $this->whenLoaded('order', fn () => [
+                'id' => $this->order->id,
+                'order_number' => $this->order->order_number,
+            ]),
+            'address' => AddressResource::make($this->whenLoaded('deliveryAddress')),
         ];
     }
 }
