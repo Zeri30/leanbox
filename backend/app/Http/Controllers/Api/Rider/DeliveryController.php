@@ -18,10 +18,14 @@ class DeliveryController extends Controller
 {
     public function __construct(private readonly DeliveryService $deliveries) {}
 
+    /** Relations the rider UI needs on each delivery (address + what to deliver). */
+    private const RELATIONS = ['deliveryAddress', 'order.items', 'subscription.plan'];
+
     public function index(Request $request): JsonResponse
     {
         $deliveries = Delivery::query()
             ->forRider($request->user()->id)
+            ->with(self::RELATIONS)
             ->orderByDesc('id')
             ->paginate(15);
 
@@ -33,6 +37,15 @@ class DeliveryController extends Controller
                 'per_page' => $deliveries->perPage(),
                 'total' => $deliveries->total(),
             ]],
+        );
+    }
+
+    public function show(Delivery $delivery): JsonResponse
+    {
+        $this->authorize('view', $delivery); // rider may only see their own
+
+        return ApiResponse::success(
+            new DeliveryResource($delivery->load(self::RELATIONS)),
         );
     }
 
@@ -49,7 +62,7 @@ class DeliveryController extends Controller
             return ApiResponse::error($e->getMessage(), $e->errorCode, $e->status);
         }
 
-        return ApiResponse::success(new DeliveryResource($delivery));
+        return ApiResponse::success(new DeliveryResource($delivery->load(self::RELATIONS)));
     }
 
     public function proof(UploadProofRequest $request, Delivery $delivery): JsonResponse
@@ -62,6 +75,6 @@ class DeliveryController extends Controller
             $request->validated()['notes'] ?? null,
         );
 
-        return ApiResponse::success(new DeliveryResource($delivery));
+        return ApiResponse::success(new DeliveryResource($delivery->load(self::RELATIONS)));
     }
 }

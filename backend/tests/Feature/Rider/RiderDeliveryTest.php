@@ -8,6 +8,7 @@ use App\Enums\PaymentStatus;
 use App\Events\OrderStatusChanged;
 use App\Models\Delivery;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -29,6 +30,37 @@ class RiderDeliveryTest extends TestCase
 
         $this->getJson('/api/v1/rider/deliveries')
             ->assertOk()->assertJsonPath('meta.pagination.total', 1);
+    }
+
+    public function test_delivery_payload_includes_address_and_items(): void
+    {
+        $rider = User::factory()->rider()->create();
+        $order = Order::factory()->create();
+        $order->items()->create(['product_id' => Product::factory()->create()->id, 'product_name' => 'Chicken Bowl', 'quantity' => 2, 'unit_price' => 10, 'line_total' => 20]);
+        $delivery = Delivery::factory()->create([
+            'order_id' => $order->id,
+            'delivery_address_id' => $order->delivery_address_id,
+            'rider_id' => $rider->id,
+            'status' => DeliveryStatus::Assigned,
+        ]);
+        Sanctum::actingAs($rider);
+
+        $res = $this->getJson('/api/v1/rider/deliveries')->assertOk();
+        $this->assertNotNull($res->json('data.0.address.recipient_name'));
+        $this->assertSame('Chicken Bowl', $res->json('data.0.items.0.product_name'));
+        $this->assertSame(2, $res->json('data.0.items.0.quantity'));
+
+        $this->getJson("/api/v1/rider/deliveries/{$delivery->id}")
+            ->assertOk()->assertJsonPath('data.id', $delivery->id)
+            ->assertJsonPath('data.order.order_number', $order->order_number);
+    }
+
+    public function test_rider_cannot_view_another_riders_delivery(): void
+    {
+        $otherDelivery = Delivery::factory()->assigned(User::factory()->rider()->create()->id)->create();
+        Sanctum::actingAs(User::factory()->rider()->create());
+
+        $this->getJson("/api/v1/rider/deliveries/{$otherDelivery->id}")->assertStatus(403);
     }
 
     public function test_rider_can_mark_out_for_delivery(): void
