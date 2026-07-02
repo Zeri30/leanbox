@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
 use App\Events\OrderStatusChanged;
+use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -69,6 +71,41 @@ class AdminOrderTest extends TestCase
             ->assertOk()->assertJsonPath('data.status', 'shipped');
 
         Event::assertDispatched(OrderStatusChanged::class);
+    }
+
+    public function test_confirming_an_order_creates_a_pending_delivery(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Pending]);
+        $this->actingAdmin();
+        $this->assertFalse($order->delivery()->exists());
+
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/status", ['status' => 'confirmed'])->assertOk();
+
+        $order->refresh();
+        $this->assertTrue($order->delivery()->exists());
+        $this->assertSame(DeliveryStatus::Pending, $order->delivery->status);
+    }
+
+    public function test_advancing_status_does_not_duplicate_the_delivery(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Pending]);
+        $this->actingAdmin();
+
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/status", ['status' => 'confirmed'])->assertOk();
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/status", ['status' => 'preparing'])->assertOk();
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/status", ['status' => 'shipped'])->assertOk();
+
+        $this->assertSame(1, Delivery::where('order_id', $order->id)->count());
+    }
+
+    public function test_cancelling_an_order_does_not_create_a_delivery(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Pending]);
+        $this->actingAdmin();
+
+        $this->patchJson("/api/v1/admin/orders/{$order->id}/cancel")->assertOk();
+
+        $this->assertSame(0, Delivery::where('order_id', $order->id)->count());
     }
 
     public function test_illegal_status_jump_is_rejected(): void
