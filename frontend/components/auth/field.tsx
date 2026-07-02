@@ -23,7 +23,11 @@ export const Field = React.forwardRef<HTMLInputElement, FieldProps>(
           id={id}
           aria-invalid={error ? true : undefined}
           aria-describedby={errorId}
-          className={className}
+          className={cn(
+            // Small one-cycle shake when the field becomes invalid (§8).
+            error && "[animation:var(--animate-shake)] motion-reduce:animate-none",
+            className,
+          )}
           {...props}
         />
         {error && (

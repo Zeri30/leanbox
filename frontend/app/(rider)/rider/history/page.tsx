@@ -2,6 +2,7 @@
 
 import { History } from "lucide-react";
 
+import { Stagger, StaggerItem } from "@/components/motion";
 import { DeliveryCard } from "@/components/rider/delivery-card";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,7 +41,13 @@ export default function RiderHistoryPage() {
             </p>
           </Card>
         ) : (
-          completed.map((d) => <DeliveryCard key={d.id} delivery={d} />)
+          <Stagger className="space-y-3">
+            {completed.map((d) => (
+              <StaggerItem key={d.id}>
+                <DeliveryCard delivery={d} />
+              </StaggerItem>
+            ))}
+          </Stagger>
         )}
       </div>
     </div>

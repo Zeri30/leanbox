@@ -2,6 +2,7 @@
 
 import { PackageCheck } from "lucide-react";
 
+import { Stagger, StaggerItem } from "@/components/motion";
 import { DeliveryCard } from "@/components/rider/delivery-card";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,7 +44,13 @@ export default function RiderDeliveriesPage() {
             </p>
           </Card>
         ) : (
-          active.map((d) => <DeliveryCard key={d.id} delivery={d} />)
+          <Stagger className="space-y-3">
+            {active.map((d) => (
+              <StaggerItem key={d.id}>
+                <DeliveryCard delivery={d} />
+              </StaggerItem>
+            ))}
+          </Stagger>
         )}
       </div>
     </div>

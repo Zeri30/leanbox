@@ -65,6 +65,12 @@
   /* Skeleton shimmer */
   --animate-shimmer: shimmer 1.4s ease-in-out infinite;
 
+  /* Form-error shake (UI/UX §8) — one short cycle to draw the eye */
+  --animate-shake: shake 0.4s var(--ease-standard);
+
+  /* Cross-fade for status badges when they change (§8) */
+  --animate-status: statusFade 0.22s var(--ease-standard);
+
   /* Fonts (wired via next/font in app/layout.tsx) */
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-display: var(--font-sora), system-ui, sans-serif;
@@ -77,6 +83,21 @@
   100% {
     background-position: 200% 0;
   }
+}
+
+/* Small horizontal shake for invalid form fields (§8) — GPU-friendly translate. */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+/* Status badge cross-fade — new state fades/scales in when it changes (§8). */
+@keyframes statusFade {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @layer base {
