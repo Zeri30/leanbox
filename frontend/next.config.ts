@@ -11,9 +11,11 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       // Supabase Storage (bucket: leanbox-images) — public object URLs.
+      // Uploaded assets are served from `<ref>.storage.supabase.co`, so we need
+      // `**` (matches any leading subdomains); a single `*` only matches one.
       {
         protocol: "https",
-        hostname: "*.supabase.co",
+        hostname: "**.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
       // Curated product photos used by the demo seeder.
