@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import type { Order, OrderStatus, Pagination } from "@/lib/types/api";
 
 import { ADMIN_QUERY_KEY } from "./dashboard";
+import { ADMIN_DELIVERIES_KEY } from "./deliveries";
 
 export const ADMIN_ORDERS_KEY = [...ADMIN_QUERY_KEY, "orders"] as const;
 
@@ -98,6 +99,8 @@ export function useUpdateOrderStatus(id: number) {
     onSuccess: (order) => {
       qc.setQueryData(adminOrderKey(id), order);
       qc.invalidateQueries({ queryKey: ADMIN_ORDERS_KEY });
+      // Confirming an order auto-creates its delivery — refresh the deliveries list.
+      qc.invalidateQueries({ queryKey: ADMIN_DELIVERIES_KEY });
     },
   });
 }
