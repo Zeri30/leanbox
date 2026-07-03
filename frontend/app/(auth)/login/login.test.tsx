@@ -112,7 +112,7 @@ describe("LoginPage", () => {
     await user.type(screen.getByLabelText("Password"), "secret123");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
-    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith("/account"));
+    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
   });
 
   const successBody = {
@@ -153,6 +153,6 @@ describe("LoginPage", () => {
     await user.click(screen.getByLabelText("Password"));
     await user.keyboard("secret123{Enter}");
 
-    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith("/account"));
+    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
   });
 });

@@ -43,6 +43,6 @@ describe("homeForRole", () => {
   it("maps each role to its landing route", () => {
     expect(homeForRole("admin")).toBe("/admin");
     expect(homeForRole("rider")).toBe("/rider");
-    expect(homeForRole("customer")).toBe("/account");
+    expect(homeForRole("customer")).toBe("/");
   });
 });
