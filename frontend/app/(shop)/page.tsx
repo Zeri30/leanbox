@@ -5,6 +5,7 @@ import {
   CategoryLinks,
   CategoryLinksSkeleton,
 } from "@/components/home/category-links";
+import { HeroVisual } from "@/components/home/hero-visual";
 import {
   BestSellers,
   FeaturedProducts,
@@ -24,23 +25,30 @@ export default function Home() {
       {/* Hero */}
       <FadeUp>
         <section className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary-soft via-card to-card p-8 sm:p-12">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Leanbox
-          </p>
-          <h1 className="mt-2 max-w-2xl text-4xl font-bold sm:text-5xl">
-            Eat lean. Live strong.
-          </h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
-            Healthy meals, high-protein packages, supplements, snacks, and
-            meal-prep subscriptions — delivered across the Philippines.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/products">Shop now</Link>
-            </Button>
-            <Button asChild variant="secondary" size="lg">
-              <Link href="/products?sort=newest">What&apos;s new</Link>
-            </Button>
+          <div className="grid items-center gap-8 sm:grid-cols-[1fr_auto] sm:gap-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+                Leanbox
+              </p>
+              <h1 className="mt-2 max-w-2xl text-4xl font-bold sm:text-5xl">
+                Eat lean. Live strong.
+              </h1>
+              <p className="mt-3 max-w-xl text-muted-foreground">
+                Healthy meals, high-protein packages, supplements, snacks, and
+                meal-prep subscriptions — delivered across the Philippines.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Button asChild size="lg">
+                  <Link href="/products">Shop now</Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/products?sort=newest">What&apos;s new</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="hidden w-56 shrink-0 sm:block lg:w-72">
+              <HeroVisual />
+            </div>
           </div>
         </section>
       </FadeUp>
@@ -80,7 +88,7 @@ export default function Home() {
             </p>
           </div>
           <Button asChild size="lg">
-            <Link href="/products">Explore plans</Link>
+            <Link href="/plans">Explore plans</Link>
           </Button>
         </section>
       </FadeUp>

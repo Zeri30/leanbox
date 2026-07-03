@@ -124,7 +124,8 @@ export function homeForRole(role: UserRole): string {
     case "rider":
       return "/rider";
     default:
-      return "/account";
+      // Customers land on the storefront home, not their account/profile page.
+      return "/";
   }
 }
 
