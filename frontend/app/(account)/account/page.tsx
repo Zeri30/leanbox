@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
       <form
         onSubmit={onSubmit}
-        className="mx-auto mt-6 flex max-w-60 flex-col gap-3 sm:mx-0 sm:max-w-none"
+        className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4"
         noValidate
       >
         {banner && <FormBanner>{banner}</FormBanner>}
@@ -121,7 +121,7 @@ export default function ProfilePage() {
           autoComplete="name"
           required
           error={errors.full_name}
-          className="h-9 px-3"
+          className="h-9 bg-background px-3"
         />
         <Field
           id="email"
@@ -133,7 +133,7 @@ export default function ProfilePage() {
           autoComplete="email"
           required
           error={errors.email}
-          className="h-9 px-3"
+          className="h-9 bg-background px-3"
         />
         <Field
           id="phone"
@@ -144,7 +144,7 @@ export default function ProfilePage() {
           onChange={(e) => set("phone", e.target.value)}
           autoComplete="tel"
           error={errors.phone}
-          className="h-9 px-3"
+          className="h-9 bg-background px-3"
         />
 
         <div className="mt-1 flex gap-3">

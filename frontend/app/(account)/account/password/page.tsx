@@ -70,7 +70,7 @@ export default function ChangePasswordPage() {
 
       <form
         onSubmit={onSubmit}
-        className="mx-auto mt-6 flex max-w-60 flex-col gap-3 sm:mx-0 sm:max-w-none"
+        className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4"
         noValidate
       >
         {banner && <FormBanner>{banner}</FormBanner>}
@@ -86,7 +86,7 @@ export default function ChangePasswordPage() {
           autoComplete="current-password"
           required
           error={errors.current_password}
-          className="h-9 px-3"
+          className="h-9 bg-background px-3"
         />
         <Field
           id="password"
@@ -98,7 +98,7 @@ export default function ChangePasswordPage() {
           autoComplete="new-password"
           required
           error={errors.password}
-          className="h-9 px-3"
+          className="h-9 bg-background px-3"
         />
         <Field
           id="password_confirmation"
@@ -110,7 +110,7 @@ export default function ChangePasswordPage() {
           autoComplete="new-password"
           required
           error={errors.password_confirmation}
-          className="h-9 px-3"
+          className="h-9 bg-background px-3"
         />
 
         <div className="mt-1 flex gap-3">
