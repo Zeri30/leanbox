@@ -68,7 +68,11 @@ export default function ChangePasswordPage() {
         Use at least 8 characters.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
+      <form
+        onSubmit={onSubmit}
+        className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4"
+        noValidate
+      >
         {banner && <FormBanner>{banner}</FormBanner>}
         {saved && <FormBanner variant="success">Password updated.</FormBanner>}
 
@@ -82,6 +86,7 @@ export default function ChangePasswordPage() {
           autoComplete="current-password"
           required
           error={errors.current_password}
+          className="h-9 bg-background px-3"
         />
         <Field
           id="password"
@@ -93,6 +98,7 @@ export default function ChangePasswordPage() {
           autoComplete="new-password"
           required
           error={errors.password}
+          className="h-9 bg-background px-3"
         />
         <Field
           id="password_confirmation"
@@ -104,6 +110,7 @@ export default function ChangePasswordPage() {
           autoComplete="new-password"
           required
           error={errors.password_confirmation}
+          className="h-9 bg-background px-3"
         />
 
         <div className="mt-1 flex gap-3">

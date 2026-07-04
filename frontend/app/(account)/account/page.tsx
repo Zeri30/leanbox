@@ -88,11 +88,11 @@ export default function ProfilePage() {
 
   if (isLoading || !user) {
     return (
-      <div className="flex max-w-lg flex-col gap-4">
+      <div className="flex max-w-lg flex-col gap-3">
         <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-11 w-full" />
-        <Skeleton className="h-11 w-full" />
-        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-9 w-full" />
       </div>
     );
   }
@@ -104,7 +104,11 @@ export default function ProfilePage() {
         Update your account information.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
+      <form
+        onSubmit={onSubmit}
+        className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4"
+        noValidate
+      >
         {banner && <FormBanner>{banner}</FormBanner>}
         {saved && <FormBanner variant="success">Profile updated.</FormBanner>}
 
@@ -117,6 +121,7 @@ export default function ProfilePage() {
           autoComplete="name"
           required
           error={errors.full_name}
+          className="h-9 bg-background px-3"
         />
         <Field
           id="email"
@@ -128,6 +133,7 @@ export default function ProfilePage() {
           autoComplete="email"
           required
           error={errors.email}
+          className="h-9 bg-background px-3"
         />
         <Field
           id="phone"
@@ -138,6 +144,7 @@ export default function ProfilePage() {
           onChange={(e) => set("phone", e.target.value)}
           autoComplete="tel"
           error={errors.phone}
+          className="h-9 bg-background px-3"
         />
 
         <div className="mt-1 flex gap-3">

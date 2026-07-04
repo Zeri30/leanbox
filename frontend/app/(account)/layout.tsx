@@ -11,11 +11,11 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <TopNav />
       <RequireAuth role="customer">
-        <div className="mx-auto grid w-full max-w-5xl flex-1 gap-6 px-4 py-6 pb-24 sm:grid-cols-[200px_1fr] md:pb-8">
-          <aside className="sm:pt-1">
+        <div className="mx-auto grid w-full max-w-5xl flex-1 gap-6 px-4 py-6 pb-24 lg:grid-cols-[200px_1fr] md:pb-8">
+          <aside className="lg:pt-1">
             <AccountNav />
           </aside>
-          <div>{children}</div>
+          <div className="min-w-0">{children}</div>
         </div>
       </RequireAuth>
       <BottomTabBar />
