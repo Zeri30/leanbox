@@ -233,30 +233,24 @@ function ProofUpload({ delivery }: { delivery: Delivery }) {
   const { toast } = useToast();
   const upload = useUploadRiderProof(delivery.id);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
 
-  function pick(files: FileList | null) {
+  // Upload as soon as a photo is captured — a single tap, no separate "Upload"
+  // button. This avoids the mobile pitfall where the first tap on a later button
+  // only dismisses the notes keyboard, so proof appeared to need a second click.
+  async function pickAndUpload(files: FileList | null) {
     const f = files?.[0];
+    // Reset the input so picking the same photo again still fires onChange.
+    if (inputRef.current) inputRef.current.value = "";
     if (!f) return;
     if (f.size > MAX_BYTES) {
       toast("Photo must be 5 MB or smaller.", "error");
       return;
     }
-    setFile(f);
-  }
-
-  async function submit() {
-    if (!file) {
-      toast("Take or choose a photo first.", "error");
-      return;
-    }
     try {
-      await upload.mutateAsync({ file, notes: notes.trim() || undefined });
+      await upload.mutateAsync({ file: f, notes: notes.trim() || undefined });
       toast("Proof uploaded.", "success");
-      setFile(null);
       setNotes("");
-      if (inputRef.current) inputRef.current.value = "";
     } catch {
       toast("Couldn't upload the photo.", "error");
     }
@@ -268,9 +262,23 @@ function ProofUpload({ delivery }: { delivery: Delivery }) {
         <CardTitle>Proof of delivery</CardTitle>
       </CardHeader>
 
-      {delivery.proof_image_url && !file && (
-        <p className="text-sm text-success">A photo is already attached. You can replace it below.</p>
+      {delivery.proof_image_url ? (
+        <p className="text-sm text-success">
+          A photo is attached. Take another to replace it.
+        </p>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Add a note if needed, then take a photo — it uploads right away.
+        </p>
       )}
+
+      <textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        rows={2}
+        placeholder="Note (optional, e.g. left with the guard)…"
+        className="w-full rounded-lg border border-input bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-subtle focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      />
 
       <input
         ref={inputRef}
@@ -278,35 +286,21 @@ function ProofUpload({ delivery }: { delivery: Delivery }) {
         accept="image/jpeg,image/png,image/webp"
         capture="environment"
         className="sr-only"
-        onChange={(e) => pick(e.target.files)}
+        onChange={(e) => pickAndUpload(e.target.files)}
       />
 
       <Button
-        variant="secondary"
         size="lg"
         className="h-14 w-full text-base"
         onClick={() => inputRef.current?.click()}
+        disabled={upload.isPending}
       >
-        <Camera className="size-5" /> {file ? "Retake photo" : "Take / choose photo"}
-      </Button>
-
-      {file && <p className="truncate text-sm text-muted-foreground">Selected: {file.name}</p>}
-
-      <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        rows={2}
-        placeholder="Notes (e.g. left with the guard)…"
-        className="w-full rounded-lg border border-input bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-subtle focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-      />
-
-      <Button
-        size="lg"
-        className="h-12 w-full"
-        onClick={submit}
-        disabled={upload.isPending || !file}
-      >
-        {upload.isPending ? "Uploading…" : "Upload proof"}
+        <Camera className="size-5" />
+        {upload.isPending
+          ? "Uploading…"
+          : delivery.proof_image_url
+            ? "Replace photo"
+            : "Take / choose photo"}
       </Button>
     </Card>
   );
