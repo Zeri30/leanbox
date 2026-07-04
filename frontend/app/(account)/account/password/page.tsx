@@ -68,7 +68,11 @@ export default function ChangePasswordPage() {
         Use at least 8 characters.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" noValidate>
+      <form
+        onSubmit={onSubmit}
+        className="mx-auto mt-6 flex max-w-60 flex-col gap-3 sm:mx-0 sm:max-w-none"
+        noValidate
+      >
         {banner && <FormBanner>{banner}</FormBanner>}
         {saved && <FormBanner variant="success">Password updated.</FormBanner>}
 

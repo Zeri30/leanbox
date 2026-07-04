@@ -104,7 +104,11 @@ export default function ProfilePage() {
         Update your account information.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" noValidate>
+      <form
+        onSubmit={onSubmit}
+        className="mx-auto mt-6 flex max-w-60 flex-col gap-3 sm:mx-0 sm:max-w-none"
+        noValidate
+      >
         {banner && <FormBanner>{banner}</FormBanner>}
         {saved && <FormBanner variant="success">Profile updated.</FormBanner>}
 
