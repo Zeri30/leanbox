@@ -15,6 +15,7 @@ import { useRef, useState } from "react";
 
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { errorMessage } from "@/lib/auth";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -240,19 +241,23 @@ function ProofUpload({ delivery }: { delivery: Delivery }) {
   // only dismisses the notes keyboard, so proof appeared to need a second click.
   async function pickAndUpload(files: FileList | null) {
     const f = files?.[0];
-    // Reset the input so picking the same photo again still fires onChange.
-    if (inputRef.current) inputRef.current.value = "";
     if (!f) return;
     if (f.size > MAX_BYTES) {
       toast("Photo must be 5 MB or smaller.", "error");
+      if (inputRef.current) inputRef.current.value = "";
       return;
     }
     try {
       await upload.mutateAsync({ file: f, notes: notes.trim() || undefined });
       toast("Proof uploaded.", "success");
       setNotes("");
-    } catch {
-      toast("Couldn't upload the photo.", "error");
+    } catch (err) {
+      // Surface the real reason (timeout / network / server) instead of a generic line.
+      toast(errorMessage(err) || "Couldn't upload the photo. Please try again.", "error");
+    } finally {
+      // Reset after the request so the File stays valid during upload and
+      // re-picking the same photo still fires onChange.
+      if (inputRef.current) inputRef.current.value = "";
     }
   }
 

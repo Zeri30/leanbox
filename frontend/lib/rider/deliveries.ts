@@ -94,7 +94,14 @@ export function useUploadRiderProof(id: number) {
       const form = new FormData();
       form.append("image", file);
       if (notes) form.append("notes", notes);
-      return (await api.upload<Delivery>(`/rider/deliveries/${id}/proof`, form)).data;
+      // Photos go to Supabase Storage server-side; a cold connection plus the
+      // upload itself can exceed the default 12s browser budget (the first
+      // attempt would fail, the warm retry succeed). Give uploads 60s.
+      return (
+        await api.upload<Delivery>(`/rider/deliveries/${id}/proof`, form, {
+          timeoutMs: 60_000,
+        })
+      ).data;
     },
     onSuccess: (delivery) => {
       qc.setQueryData(riderDeliveryKey(id), delivery);
