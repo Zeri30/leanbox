@@ -7,19 +7,25 @@ import { useState } from "react";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Select, type SelectOption } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminOrders, type AdminOrdersParams } from "@/lib/admin/orders";
 import type { OrderStatus } from "@/lib/types/api";
 import { formatDate, formatPHP } from "@/lib/utils";
 
-const STATUSES: (OrderStatus | "")[] = [
-  "",
+const STATUSES: OrderStatus[] = [
   "pending",
   "confirmed",
   "preparing",
   "shipped",
   "delivered",
   "cancelled",
+];
+
+// "all" is a sentinel — Radix Select forbids an empty-string option value.
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: "all", label: "All statuses" },
+  ...STATUSES.map((s) => ({ value: s, label: s[0].toUpperCase() + s.slice(1) })),
 ];
 
 export default function AdminOrdersPage() {
@@ -59,20 +65,16 @@ export default function AdminOrdersPage() {
             className="h-11 w-full rounded-lg border border-input bg-surface pl-9 pr-3 text-sm text-foreground placeholder:text-subtle focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           />
         </div>
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value as OrderStatus | "");
+        <Select
+          value={status || "all"}
+          onValueChange={(v) => {
+            setStatus(v === "all" ? "" : (v as OrderStatus));
             setPage(1);
           }}
-          className="h-11 w-full rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:w-auto"
-        >
-          {STATUSES.map((s) => (
-            <option key={s || "all"} value={s}>
-              {s === "" ? "All statuses" : s[0].toUpperCase() + s.slice(1)}
-            </option>
-          ))}
-        </select>
+          options={STATUS_OPTIONS}
+          aria-label="Filter orders by status"
+          className="h-11 w-full sm:w-48"
+        />
       </div>
 
       <Card className="overflow-hidden p-0">

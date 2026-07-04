@@ -15,7 +15,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
           <aside className="lg:pt-1">
             <AccountNav />
           </aside>
-          <div>{children}</div>
+          <div className="min-w-0">{children}</div>
         </div>
       </RequireAuth>
       <BottomTabBar />

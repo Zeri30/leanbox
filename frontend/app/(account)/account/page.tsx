@@ -88,7 +88,7 @@ export default function ProfilePage() {
 
   if (isLoading || !user) {
     return (
-      <div className="flex max-w-lg flex-col gap-4">
+      <div className="flex max-w-sm flex-col gap-4">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-11 w-full" />
         <Skeleton className="h-11 w-full" />
@@ -98,7 +98,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-sm">
       <h1 className="text-2xl font-bold">Profile</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Update your account information.

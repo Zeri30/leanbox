@@ -62,7 +62,7 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-sm">
       <h1 className="text-2xl font-bold">Change password</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Use at least 8 characters.
