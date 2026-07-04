@@ -45,8 +45,8 @@ export default function AdminOrdersPage() {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-56 flex-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative w-full sm:min-w-56 sm:flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
           <input
             type="search"
@@ -65,7 +65,7 @@ export default function AdminOrdersPage() {
             setStatus(e.target.value as OrderStatus | "");
             setPage(1);
           }}
-          className="h-11 rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          className="h-11 w-full rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:w-auto"
         >
           {STATUSES.map((s) => (
             <option key={s || "all"} value={s}>

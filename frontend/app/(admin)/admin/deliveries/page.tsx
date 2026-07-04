@@ -53,7 +53,7 @@ export default function AdminDeliveriesPage() {
         </p>
       </div>
 
-      <div className="flex gap-1 rounded-lg border border-border bg-surface p-1">
+      <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-surface p-1">
         {STATUSES.map((s) => (
           <button
             key={s || "all"}
@@ -63,7 +63,7 @@ export default function AdminDeliveriesPage() {
               setPage(1);
             }}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium capitalize transition-colors",
+              "whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium capitalize transition-colors",
               status === s
                 ? "bg-primary-soft text-primary"
                 : "text-muted-foreground hover:text-foreground",
@@ -259,7 +259,7 @@ function ManagePanel({ delivery }: { delivery: Delivery }) {
 
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <div className="flex min-w-56 flex-col gap-1.5">
+      <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:min-w-56">
         <label className="text-xs uppercase tracking-wide text-muted-foreground">
           {assigned ? "Reassign rider" : "Assign rider"}
         </label>
@@ -267,7 +267,7 @@ function ManagePanel({ delivery }: { delivery: Delivery }) {
           value={riderId}
           onChange={(e) => setRiderId(e.target.value)}
           disabled={ridersLoading}
-          className="h-10 rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          className="h-10 w-full rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
           <option value="" disabled>
             {ridersLoading ? "Loading riders…" : "Select a rider…"}
