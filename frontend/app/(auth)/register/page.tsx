@@ -58,7 +58,7 @@ export default function RegisterPage() {
           Eat lean, live strong — start in under a minute.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mt-3">
         <form
           onSubmit={onSubmit}
           onKeyDown={advanceOnEnter}
