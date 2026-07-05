@@ -59,11 +59,44 @@ class AuthService
     }
 
     /**
+     * Check a reset code without consuming it — used by the "enter code" step so
+     * a bad code is caught before the user picks a new password.
+     */
+    public function verifyResetCode(string $email, string $code): bool
+    {
+        return $this->resetCodeIsValid($email, $code);
+    }
+
+    /**
      * Verify a reset code and set a new password. Returns false when the code is
      * missing, expired, or wrong. On success the code is consumed and every
      * existing access token is revoked (all sessions signed out).
      */
     public function resetPassword(string $email, string $code, string $password): bool
+    {
+        if (! $this->resetCodeIsValid($email, $code)) {
+            return false;
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            return false;
+        }
+
+        $user->update(['password' => $password]); // 'hashed' cast hashes it
+        $user->tokens()->delete(); // revoke every existing session
+
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        return true;
+    }
+
+    /**
+     * True when a stored code exists for the email, hasn't expired, and matches.
+     * Expired rows are cleaned up. Does not consume a valid code.
+     */
+    private function resetCodeIsValid(string $email, string $code): bool
     {
         $row = DB::table('password_reset_tokens')->where('email', $email)->first();
 
@@ -81,21 +114,6 @@ class AuthService
             return false;
         }
 
-        if (! Hash::check($code, $row->token)) {
-            return false;
-        }
-
-        $user = User::where('email', $email)->first();
-
-        if (! $user) {
-            return false;
-        }
-
-        $user->update(['password' => $password]); // 'hashed' cast hashes it
-        $user->tokens()->delete(); // revoke every existing session
-
-        DB::table('password_reset_tokens')->where('email', $email)->delete();
-
-        return true;
+        return Hash::check($code, $row->token);
     }
 }

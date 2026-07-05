@@ -48,6 +48,37 @@ class PasswordResetTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_verify_accepts_a_valid_code_without_consuming_it(): void
+    {
+        User::factory()->create(['email' => 'jo@example.com']);
+        $this->seedCode('jo@example.com', '123456');
+
+        $this->postJson('/api/v1/auth/verify-reset-code', [
+            'email' => 'jo@example.com',
+            'code' => '123456',
+        ])->assertOk()->assertJsonPath('error', null);
+
+        // Verifying must NOT consume the code — the reset step still needs it.
+        $this->assertDatabaseHas('password_reset_tokens', ['email' => 'jo@example.com']);
+    }
+
+    public function test_verify_rejects_a_wrong_or_expired_code(): void
+    {
+        User::factory()->create(['email' => 'jo@example.com']);
+        $this->seedCode('jo@example.com', '123456');
+
+        $this->postJson('/api/v1/auth/verify-reset-code', [
+            'email' => 'jo@example.com',
+            'code' => '000000',
+        ])->assertStatus(422)->assertJsonPath('error.code', 'invalid_reset_code');
+
+        $this->seedCode('jo@example.com', '123456', now()->subMinutes(20));
+        $this->postJson('/api/v1/auth/verify-reset-code', [
+            'email' => 'jo@example.com',
+            'code' => '123456',
+        ])->assertStatus(422)->assertJsonPath('error.code', 'invalid_reset_code');
+    }
+
     public function test_reset_password_with_a_valid_code_changes_the_password(): void
     {
         $user = User::factory()->create([

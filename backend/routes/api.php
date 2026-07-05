@@ -57,6 +57,7 @@ Route::prefix('auth')->group(function () {
 
     // Password reset by emailed 6-digit code.
     Route::post('forgot-password', [PasswordResetController::class, 'forgot'])->middleware('throttle:5,1');
+    Route::post('verify-reset-code', [PasswordResetController::class, 'verify'])->middleware('throttle:6,1');
     Route::post('reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:6,1');
 });
 
