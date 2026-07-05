@@ -116,6 +116,37 @@ export function useUpdatePassword() {
   });
 }
 
+/** Request a password-reset code by email (always resolves; never reveals if the email exists). */
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: async (vars: { email: string }) =>
+      (await api.post<{ message: string }>("/auth/forgot-password", vars)).data,
+  });
+}
+
+/** Check the emailed code before the new-password step (doesn't consume it). */
+export function useVerifyResetCode() {
+  return useMutation({
+    mutationFn: async (vars: { email: string; code: string }) =>
+      (await api.post<{ message: string }>("/auth/verify-reset-code", vars)).data,
+  });
+}
+
+export interface ResetPasswordVars {
+  email: string;
+  code: string;
+  password: string;
+  password_confirmation: string;
+}
+
+/** Set a new password using the emailed code. */
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: async (vars: ResetPasswordVars) =>
+      (await api.post<{ message: string }>("/auth/reset-password", vars)).data,
+  });
+}
+
 /** Default landing route after auth, by role. */
 export function homeForRole(role: UserRole): string {
   switch (role) {

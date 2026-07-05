@@ -54,7 +54,7 @@ export default function LoginPage() {
         <CardTitle className="text-xl">Welcome back</CardTitle>
         <CardDescription>Sign in to your Leanbox account.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mt-3">
         <form
           onSubmit={onSubmit}
           onKeyDown={advanceOnEnter}
@@ -89,7 +89,16 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+        <p className="mt-4 text-center text-sm">
+          <Link
+            href="/forgot-password"
+            className="font-medium text-muted-foreground hover:text-foreground hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </p>
+
+        <p className="mt-2 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="font-semibold text-primary hover:underline">
             Create one
