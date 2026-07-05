@@ -70,6 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Delivery addresses (checkout)
     Route::get('addresses', [AddressController::class, 'index'])->name('addresses.index');
     Route::post('addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::patch('addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
 
     // Cart (one per authenticated user)
     Route::get('cart', [CartController::class, 'show'])->name('cart.show');
