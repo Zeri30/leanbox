@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\PasswordResetController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\Catalog\CategoryController as CatalogCategoryController;
@@ -53,6 +54,11 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:6,1');
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    // Password reset by emailed 6-digit code.
+    Route::post('forgot-password', [PasswordResetController::class, 'forgot'])->middleware('throttle:5,1');
+    Route::post('verify-reset-code', [PasswordResetController::class, 'verify'])->middleware('throttle:6,1');
+    Route::post('reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:6,1');
 });
 
 // Authenticated profile & password
