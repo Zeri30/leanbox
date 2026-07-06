@@ -38,6 +38,30 @@ export function useCreateAddress() {
   });
 }
 
+/** Update a saved address; refreshes the address list on success. */
+export function useUpdateAddress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: number; payload: NewAddress }) =>
+      (await api.patch<Address>(`/addresses/${id}`, payload, { timeoutMs: 20_000 })).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADDRESSES_QUERY_KEY });
+    },
+  });
+}
+
+/** Delete a saved address; refreshes the address list on success. */
+export function useDeleteAddress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) =>
+      (await api.delete<{ message: string }>(`/addresses/${id}`)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADDRESSES_QUERY_KEY });
+    },
+  });
+}
+
 export interface PlaceOrderVars {
   deliveryAddressId: number;
   paymentMethod?: PaymentMethod;
