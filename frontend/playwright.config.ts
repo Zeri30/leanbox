@@ -39,7 +39,9 @@ export default defineConfig({
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: {
-    command: "npm run start",
+    // CI builds first and serves the production output; locally we run (or reuse)
+    // a dev server so `npm run test:e2e` works with no prior `next build`.
+    command: process.env.CI ? "npm run start" : "npm run dev",
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
