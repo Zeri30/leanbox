@@ -3,6 +3,7 @@
 import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { PRODUCT_SORTS, type ProductSort } from "@/lib/catalog/queries";
 import type { Category } from "@/lib/types/api";
 import { cn } from "@/lib/utils";
@@ -14,9 +15,6 @@ const SORT_LABELS: Record<ProductSort, string> = {
   name: "Name (A–Z)",
   newest: "Newest",
 };
-
-const selectClass =
-  "h-11 rounded-lg border border-input bg-surface px-3 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export interface FilterBarProps {
   search: string;
@@ -60,32 +58,24 @@ export function FilterBar({
       </div>
 
       <div className="flex gap-3">
-        <select
-          value={category}
-          onChange={(e) => onCategoryChange(e.target.value)}
+        <Select
+          value={category || "all"}
+          onValueChange={(v) => onCategoryChange(v === "all" ? "" : v)}
+          options={[
+            { value: "all", label: "All categories" },
+            ...categories.map((c) => ({ value: c.slug, label: c.name })),
+          ]}
           aria-label="Filter by category"
-          className={cn(selectClass, "flex-1 sm:flex-none")}
-        >
-          <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.slug}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+          className="h-11 flex-1 sm:flex-none"
+        />
 
-        <select
+        <Select
           value={sort}
-          onChange={(e) => onSortChange(e.target.value as ProductSort)}
+          onValueChange={(v) => onSortChange(v as ProductSort)}
+          options={PRODUCT_SORTS.map((s) => ({ value: s, label: SORT_LABELS[s] }))}
           aria-label="Sort products"
-          className={cn(selectClass, "flex-1 sm:flex-none")}
-        >
-          {PRODUCT_SORTS.map((s) => (
-            <option key={s} value={s}>
-              {SORT_LABELS[s]}
-            </option>
-          ))}
-        </select>
+          className="h-11 flex-1 sm:flex-none"
+        />
       </div>
     </div>
   );
