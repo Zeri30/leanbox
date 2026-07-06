@@ -9,6 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["node_modules", ".next"],
+    // `e2e/` holds Playwright specs (also *.spec.ts) — keep Vitest out of them.
+    exclude: ["node_modules", ".next", "e2e/**"],
   },
 });
