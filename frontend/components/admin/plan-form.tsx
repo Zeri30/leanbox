@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import {
   useCreatePlan,
   useUpdatePlan,
@@ -28,9 +29,6 @@ const INTERVALS: { value: BillingInterval; label: string }[] = [
   { value: "weekly", label: "Weekly" },
   { value: "monthly", label: "Monthly" },
 ];
-
-const selectClass =
-  "h-11 w-full rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
 
 /** Create/edit form for a subscription plan. `plan` undefined = create mode. */
 export function PlanForm({
@@ -111,33 +109,23 @@ export function PlanForm({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="plan-meal">Meal type</Label>
-            <select
-              id="plan-meal"
+            <Select
               value={mealType}
-              onChange={(e) => setMealType(e.target.value as MealType)}
-              className={selectClass}
-            >
-              {MEAL_TYPES.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={(v) => setMealType(v as MealType)}
+              options={MEAL_TYPES.map((m) => ({ value: m.value, label: m.label }))}
+              aria-label="Meal type"
+              className="h-11 w-full"
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="plan-interval">Billing interval</Label>
-            <select
-              id="plan-interval"
+            <Select
               value={interval}
-              onChange={(e) => setInterval(e.target.value as BillingInterval)}
-              className={selectClass}
-            >
-              {INTERVALS.map((i) => (
-                <option key={i.value} value={i.value}>
-                  {i.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={(v) => setInterval(v as BillingInterval)}
+              options={INTERVALS.map((i) => ({ value: i.value, label: i.label }))}
+              aria-label="Billing interval"
+              className="h-11 w-full"
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="plan-price">Price (₱)</Label>

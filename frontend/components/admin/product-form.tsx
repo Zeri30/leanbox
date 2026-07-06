@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import {
   useAdminCategories,
   useCreateProduct,
@@ -208,23 +209,17 @@ export function ProductForm({ product }: { product?: Product }) {
             </Field>
 
             <Field label="Category" htmlFor="category">
-              <select
-                id="category"
+              <Select
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="h-11 w-full rounded-lg border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-                required
-              >
-                <option value="" disabled>
-                  Select a category…
-                </option>
-                {(categories.data ?? []).map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                    {!c.is_active ? " (inactive)" : ""}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setCategoryId}
+                options={(categories.data ?? []).map((c) => ({
+                  value: String(c.id),
+                  label: `${c.name}${!c.is_active ? " (inactive)" : ""}`,
+                }))}
+                placeholder="Select a category…"
+                aria-label="Category"
+                className="h-11 w-full"
+              />
             </Field>
 
             <Field label="Price (₱)" htmlFor="price">
