@@ -14,6 +14,10 @@ import { login, placeCodOrder, register } from "./support/actions";
 test("an admin assigns a rider who then completes the delivery", async ({
   browser,
 }) => {
+  // Heaviest journey — three roles, ~8 first-visit route compiles under a cold
+  // dev server. Give it extra headroom so a slow local compile isn't a failure.
+  test.slow();
+
   const customer = makeCustomer("deliver");
 
   // --- Customer: place a COD order -----------------------------------------

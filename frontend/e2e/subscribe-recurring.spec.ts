@@ -37,11 +37,12 @@ test("subscribing then running a due cycle produces a recurring charge", async (
     expect(subscriptionId).toBeGreaterThan(0);
   });
 
+  const billingRows = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Billing history" }) })
+    .locator("ul > li");
+
   await test.step("the first cycle is recorded on subscribe", async () => {
-    const billingRows = page
-      .locator("section")
-      .filter({ has: page.getByRole("heading", { name: "Billing history" }) })
-      .locator("ul > li");
     await expect(billingRows).toHaveCount(1);
   });
 
@@ -49,14 +50,16 @@ test("subscribing then running a due cycle produces a recurring charge", async (
     runSubscriptionCycle(subscriptionId);
   });
 
-  await test.step("the recurring cycle surfaces to the customer", async () => {
-    // The cycle records a second charge + delivery and notifies the customer.
-    // Assert via the notifications feed: it's fetched fresh on first visit this
-    // session (no stale cache), and client-side nav avoids a guarded hard-load.
+  await test.step("a second (recurring) charge appears after the cycle", async () => {
+    // Reload to refetch past the 60s query cache and read the new charge.
+    await page.reload();
+    await page.waitForURL(new RegExp(`/account/subscriptions/${subscriptionId}$`));
+    await expect(billingRows).toHaveCount(2);
+  });
+
+  await test.step("the customer is notified of the renewal", async () => {
     await page.getByRole("link", { name: /Notifications/ }).first().click();
     await page.waitForURL(/\/account\/notifications$/);
-    await expect(
-      page.getByText("Subscription renewed").first(),
-    ).toBeVisible();
+    await expect(page.getByText("Subscription renewed").first()).toBeVisible();
   });
 });
