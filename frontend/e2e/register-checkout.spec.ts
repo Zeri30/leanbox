@@ -23,8 +23,7 @@ test("a new customer can register and place a COD order", async ({ page }) => {
   });
 
   await test.step("checkout with a new address, Cash on Delivery", async () => {
-    // Navigate client-side (cart → checkout) so the in-memory session carries
-    // over — a cold load of the guarded route would flash through /login.
+    // Navigate the way a shopper does: cart → checkout.
     await page.getByRole("link", { name: /^Cart/ }).click();
     await page.waitForURL(/\/cart$/);
     await page.getByRole("link", { name: "Proceed to checkout" }).click();
