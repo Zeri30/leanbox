@@ -28,7 +28,10 @@
   --color-secondary-foreground: #f1f5f4;
   --color-muted: #1e2624;
   --color-muted-foreground: #9ca8a3;
-  --color-subtle: #6b7772;
+  /* Dimmest text tier. Bumped from #6b7772 (only ~4.0:1 on the base surface) to
+     clear WCAG AA normal-text contrast (≥4.5:1) on background/surface/card/elevated
+     while staying visibly quieter than muted-foreground. */
+  --color-subtle: #879088;
   --color-accent: #0f2e1f;
   --color-accent-foreground: #22c55e;
 
@@ -122,5 +125,25 @@
   h4 {
     font-family: var(--font-display);
     color: var(--color-foreground);
+  }
+}
+
+/*
+ * Global reduced-motion safety net (UI/UX §8; WCAG 2.3.3).
+ * Framer Motion honors the user preference via <MotionConfig reducedMotion="user">,
+ * and individual CSS keyframes carry `motion-reduce:animate-none`. This block is the
+ * backstop: it near-instantly resolves ANY CSS animation/transition (including ones
+ * added later that forget the variant) so essential state changes still land, but no
+ * non-essential motion plays. Keep durations tiny rather than 0 so animation/transition
+ * end events still fire.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

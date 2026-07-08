@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Support\ApiResponse;
+use App\Support\CatalogCache;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,31 +17,49 @@ class ProductController extends Controller
     {
         $perPage = min(max((int) $request->integer('per_page', 12), 1), 48);
         $search = trim((string) $request->query('search', ''));
+        $category = (string) $request->query('category', '');
+        $sort = (string) $request->query('sort', '');
+        $featured = $request->boolean('featured');
+        $bestSelling = $request->boolean('best_selling');
+        $page = max((int) $request->integer('page', 1), 1);
 
-        $query = Product::query()
-            ->active()
-            ->with(['category', 'images' => fn ($q) => $q->orderBy('sort_order')])
-            ->when($search !== '', fn ($q) => $q->whereLike('name', "%{$search}%"))
-            ->when($request->filled('category'), function ($q) use ($request) {
-                $slug = (string) $request->query('category');
-                $q->whereHas('category', fn ($c) => $c->where('slug', $slug)->where('is_active', true));
-            })
-            ->when($request->boolean('featured'), fn ($q) => $q->where('is_featured', true))
-            ->when($request->boolean('best_selling'), fn ($q) => $q->where('is_best_selling', true));
+        // Cache each distinct listing (filters + page) briefly; the version namespace
+        // (see CatalogCache) drops these the instant a product changes, and the TTL is
+        // just a backstop. Keyed off the normalized query so unrelated pages don't collide.
+        $cacheKey = 'products:'.md5(json_encode([
+            $perPage, $search, $category, $sort, $featured, $bestSelling, $page,
+        ]));
 
-        $this->applySort($query, (string) $request->query('sort', ''));
+        $payload = CatalogCache::remember($cacheKey, function () use (
+            $request, $perPage, $search
+        ) {
+            $query = Product::query()
+                ->active()
+                ->with(['category', 'images' => fn ($q) => $q->orderBy('sort_order')])
+                ->when($search !== '', fn ($q) => $q->whereLike('name', "%{$search}%"))
+                ->when($request->filled('category'), function ($q) use ($request) {
+                    $slug = (string) $request->query('category');
+                    $q->whereHas('category', fn ($c) => $c->where('slug', $slug)->where('is_active', true));
+                })
+                ->when($request->boolean('featured'), fn ($q) => $q->where('is_featured', true))
+                ->when($request->boolean('best_selling'), fn ($q) => $q->where('is_best_selling', true));
 
-        $products = $query->paginate($perPage)->withQueryString();
+            $this->applySort($query, (string) $request->query('sort', ''));
 
-        return ApiResponse::success(
-            ProductResource::collection($products->getCollection())->resolve(),
-            ['pagination' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total(),
-            ]],
-        );
+            $products = $query->paginate($perPage)->withQueryString();
+
+            return [
+                'data' => ProductResource::collection($products->getCollection())->resolve(),
+                'meta' => ['pagination' => [
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                ]],
+            ];
+        }, CatalogCache::INDEX_TTL_SECONDS);
+
+        return ApiResponse::success($payload['data'], $payload['meta']);
     }
 
     public function show(Product $product): JsonResponse

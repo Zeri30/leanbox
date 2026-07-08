@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Brand } from "@/components/nav/brand";
+import { SkipLink } from "@/components/nav/skip-link";
 import { useMe } from "@/lib/auth";
 import { useUnreadNotificationCount } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ export function RiderShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh">
+      <SkipLink />
       <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-2xl items-center justify-between px-4">
           <Brand href="/rider" />
@@ -49,7 +51,9 @@ export function RiderShell({ children }: { children: ReactNode }) {
       </header>
 
       {/* pb leaves room for the fixed bottom bar */}
-      <main className="mx-auto max-w-2xl px-4 py-5 pb-28">{children}</main>
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl px-4 py-5 pb-28 focus-visible:outline-none">
+        {children}
+      </main>
 
       {/* Bottom tab bar */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur-md">

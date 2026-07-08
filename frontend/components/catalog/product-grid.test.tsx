@@ -69,6 +69,31 @@ describe("ProductGrid", () => {
     );
     expect(screen.getByRole("button", { name: /out of stock/i })).toBeDisabled();
   });
+
+  it("fetches only the first priorityCount images at high priority (LCP)", () => {
+    const image = (id: number, url: string): Product["images"] => [
+      { id, product_id: id, url, alt_text: null, is_primary: true, sort_order: 0 },
+    ];
+
+    renderWithClient(
+      <ProductGrid
+        priorityCount={1}
+        products={[
+          makeProduct({ id: 1, name: "First Bowl", slug: "first-bowl", images: image(1, "https://x/1.jpg") }),
+          makeProduct({ id: 2, name: "Second Bowl", slug: "second-bowl", images: image(2, "https://x/2.jpg") }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByAltText("First Bowl")).toHaveAttribute(
+      "fetchpriority",
+      "high",
+    );
+    expect(screen.getByAltText("Second Bowl")).not.toHaveAttribute(
+      "fetchpriority",
+      "high",
+    );
+  });
 });
 
 describe("ProductGridEmpty", () => {

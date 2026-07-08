@@ -27,7 +27,9 @@ export function ProductGallery({
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
-            priority
+            // Single, unambiguous LCP hero on the PDP — preload it into <head>.
+            // (Next 16 deprecated `priority` in favor of `preload`.)
+            preload
           />
         ) : (
           <div className="flex h-full items-center justify-center text-subtle">

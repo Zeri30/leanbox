@@ -136,7 +136,7 @@ export function CatalogView({
         ) : !data || data.items.length === 0 ? (
           <ProductGridEmpty onReset={resetFilters} />
         ) : (
-          <ProductGrid products={data.items} />
+          <ProductGrid products={data.items} priorityCount={4} />
         )}
       </div>
 
