@@ -54,6 +54,12 @@ class Delivery extends Model
         });
     }
 
+    /** The customer to notify about this delivery — the owning order or subscription. */
+    public function customerId(): ?int
+    {
+        return $this->order?->user_id ?? $this->subscription?->user_id;
+    }
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

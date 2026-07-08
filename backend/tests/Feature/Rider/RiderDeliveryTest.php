@@ -3,12 +3,14 @@
 namespace Tests\Feature\Rider;
 
 use App\Enums\DeliveryStatus;
+use App\Enums\NotificationType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Events\OrderStatusChanged;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -71,6 +73,54 @@ class RiderDeliveryTest extends TestCase
 
         $this->patchJson("/api/v1/rider/deliveries/{$delivery->id}/status", ['status' => 'out_for_delivery'])
             ->assertOk()->assertJsonPath('data.status', 'out_for_delivery');
+    }
+
+    public function test_marking_out_for_delivery_notifies_the_customer(): void
+    {
+        $rider = User::factory()->rider()->create();
+        $order = Order::factory()->create();
+        $delivery = Delivery::factory()->create([
+            'order_id' => $order->id,
+            'delivery_address_id' => $order->delivery_address_id,
+            'rider_id' => $rider->id,
+            'status' => DeliveryStatus::Assigned,
+        ]);
+        Sanctum::actingAs($rider);
+
+        $this->patchJson("/api/v1/rider/deliveries/{$delivery->id}/status", ['status' => 'out_for_delivery'])
+            ->assertOk();
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $order->user_id,
+            'type' => NotificationType::OrderUpdate->value,
+            'title' => 'On the way',
+        ]);
+    }
+
+    public function test_subscription_cycle_delivery_notifies_the_customer_of_progress(): void
+    {
+        // Subscription deliveries have no backing order, so both notices come from
+        // the delivery-status listener.
+        $rider = User::factory()->rider()->create();
+        $subscription = Subscription::factory()->create();
+        $delivery = Delivery::factory()->forSubscription($subscription)->assigned($rider->id)->create();
+        Sanctum::actingAs($rider);
+
+        $this->patchJson("/api/v1/rider/deliveries/{$delivery->id}/status", ['status' => 'out_for_delivery'])
+            ->assertOk();
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $subscription->user_id,
+            'type' => NotificationType::Subscription->value,
+            'title' => 'On the way',
+        ]);
+
+        $this->patchJson("/api/v1/rider/deliveries/{$delivery->id}/status", ['status' => 'delivered'])
+            ->assertOk();
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $subscription->user_id,
+            'type' => NotificationType::Subscription->value,
+            'title' => 'Delivered',
+        ]);
     }
 
     public function test_marking_delivered_syncs_the_order_and_marks_cod_paid(): void

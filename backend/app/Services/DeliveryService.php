@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\DeliveryStatus;
 use App\Events\DeliveryAssigned;
+use App\Events\DeliveryStatusChanged;
 use App\Exceptions\DeliveryException;
 use App\Models\Delivery;
 use App\Models\Order;
@@ -40,11 +41,14 @@ class DeliveryService
         ]);
     }
 
-    /** Assign (or reassign) a rider; notifies the rider. */
+    /**
+     * Assign (or reassign) a rider; notifies the rider. A failed delivery can be
+     * reassigned (the retry path in Flow 7) — only a delivered one is terminal.
+     */
     public function assign(Delivery $delivery, User $rider): Delivery
     {
-        if (in_array($delivery->status, [DeliveryStatus::Delivered, DeliveryStatus::Failed], true)) {
-            throw new DeliveryException('not_assignable', 'A completed or failed delivery cannot be reassigned.');
+        if ($delivery->status === DeliveryStatus::Delivered) {
+            throw new DeliveryException('not_assignable', 'A delivered delivery cannot be reassigned.');
         }
 
         $delivery->update([
@@ -91,6 +95,9 @@ class DeliveryService
         if ($to === DeliveryStatus::Delivered && $delivery->order_id !== null) {
             $this->orders->markDelivered($delivery->order);
         }
+
+        // Keep the customer informed of delivery progress (on the way / arrived).
+        DeliveryStatusChanged::dispatch($delivery, $to);
 
         return $delivery;
     }

@@ -141,6 +141,30 @@ class AdminDeliveryTest extends TestCase
             ->assertOk()->assertJsonPath('data.status', 'failed');
     }
 
+    public function test_a_failed_delivery_can_be_reassigned(): void
+    {
+        // The Flow 7 retry path: a failed attempt must be reassignable to a rider.
+        $rider = User::factory()->rider()->create();
+        $delivery = Delivery::factory()->create(['status' => DeliveryStatus::Failed]);
+        $this->actingAdmin();
+
+        $this->postJson("/api/v1/admin/deliveries/{$delivery->id}/assign", ['rider_id' => $rider->id])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'assigned')
+            ->assertJsonPath('data.rider_id', $rider->id);
+    }
+
+    public function test_a_delivered_delivery_cannot_be_reassigned(): void
+    {
+        $rider = User::factory()->rider()->create();
+        $delivery = Delivery::factory()->delivered($rider->id)->create();
+        $newRider = User::factory()->rider()->create();
+        $this->actingAdmin();
+
+        $this->postJson("/api/v1/admin/deliveries/{$delivery->id}/assign", ['rider_id' => $newRider->id])
+            ->assertStatus(422)->assertJsonPath('error.code', 'not_assignable');
+    }
+
     public function test_non_admins_cannot_manage_deliveries(): void
     {
         $delivery = Delivery::factory()->create();
