@@ -70,4 +70,14 @@ class ProfileTest extends TestCase
     {
         $this->getJson('/api/v1/users/me')->assertStatus(401);
     }
+
+    public function test_profile_never_leaks_sensitive_fields(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->getJson('/api/v1/users/me')
+            ->assertOk()
+            ->assertJsonMissingPath('data.password')
+            ->assertJsonMissingPath('data.remember_token');
+    }
 }
