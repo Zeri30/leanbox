@@ -29,9 +29,12 @@ const STATUSES: (DeliveryStatus | "")[] = [
   "failed",
 ];
 
-/** Delivered/failed deliveries are terminal — they can't be assigned or failed. */
+/**
+ * Only a delivered delivery is terminal. A failed one can still be reassigned to a
+ * rider (the Flow 7 retry path), so it keeps its management controls.
+ */
 function isTerminal(status: DeliveryStatus) {
-  return status === "delivered" || status === "failed";
+  return status === "delivered";
 }
 
 export default function AdminDeliveriesPage() {
@@ -225,19 +228,12 @@ function ManagePanel({ delivery }: { delivery: Delivery }) {
     }
   }
 
-  // Completed deliveries: show proof + outcome, no actions.
+  // Delivered deliveries are terminal: show proof + outcome, no actions.
   if (terminal) {
     return (
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 text-sm">
-          <Detail
-            label={delivery.status === "delivered" ? "Delivered at" : "Failed"}
-            value={
-              delivery.status === "delivered"
-                ? formatDate(delivery.delivered_at)
-                : "This delivery was marked failed."
-            }
-          />
+          <Detail label="Delivered at" value={formatDate(delivery.delivered_at)} />
           {delivery.rider && (
             <Detail label="Rider" value={delivery.rider.full_name} />
           )}
@@ -263,8 +259,15 @@ function ManagePanel({ delivery }: { delivery: Delivery }) {
     );
   }
 
+  const failed = delivery.status === "failed";
+
   return (
     <div className="flex flex-wrap items-end gap-3">
+      {failed && (
+        <p className="w-full text-xs text-destructive">
+          This delivery failed. Reassign it to a rider to retry.
+        </p>
+      )}
       <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:min-w-56">
         <label className="text-xs uppercase tracking-wide text-muted-foreground">
           {assigned ? "Reassign rider" : "Assign rider"}
@@ -285,9 +288,11 @@ function ManagePanel({ delivery }: { delivery: Delivery }) {
       <Button onClick={doAssign} disabled={assign.isPending}>
         {assign.isPending ? "Saving…" : assigned ? "Reassign" : "Assign"}
       </Button>
-      <Button variant="danger" onClick={() => setConfirmFail(true)} disabled={fail.isPending}>
-        Mark failed
-      </Button>
+      {!failed && (
+        <Button variant="danger" onClick={() => setConfirmFail(true)} disabled={fail.isPending}>
+          Mark failed
+        </Button>
+      )}
 
       {(riders ?? []).length === 0 && !ridersLoading && (
         <p className="w-full text-xs text-muted-foreground">
