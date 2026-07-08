@@ -23,6 +23,7 @@ import { useState, type ReactNode } from "react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Brand } from "@/components/nav/brand";
+import { SkipLink } from "@/components/nav/skip-link";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -90,6 +91,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh">
+      <SkipLink />
       {/* Desktop sidebar (persistent on lg, condensed below) */}
       <aside
         className={cn(
@@ -186,7 +188,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <main id="main-content" tabIndex={-1} className="flex-1 p-4 sm:p-6 focus-visible:outline-none">
+          {children}
+        </main>
       </div>
     </div>
   );

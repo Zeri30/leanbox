@@ -12,7 +12,8 @@ import {
 export async function FeaturedProducts() {
   const { items } = await getFeaturedProducts(4);
   if (items.length === 0) return null;
-  return <ProductGrid products={items} />;
+  // First row sits high on the home page — prioritize its images for LCP.
+  return <ProductGrid products={items} priorityCount={2} />;
 }
 
 /**

@@ -30,6 +30,13 @@ export interface ProductCardProps {
   productId?: number;
   /** Override the add action entirely (e.g. the component preview page). */
   onAddToCart?: () => void;
+  /**
+   * Hints the browser to fetch this card's image at high priority — set on the
+   * first above-the-fold row so the listing LCP paints sooner. (Next 16 deprecates
+   * `priority`/`preload` for grids where the LCP candidate varies by viewport;
+   * `fetchPriority` is the recommended lever here.)
+   */
+  priority?: boolean;
   className?: string;
 }
 
@@ -45,6 +52,7 @@ export function ProductCard({
   featured,
   productId,
   onAddToCart,
+  priority = false,
   className,
 }: ProductCardProps) {
   const router = useRouter();
@@ -95,6 +103,7 @@ export function ProductCard({
               alt={name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              fetchPriority={priority ? "high" : undefined}
               className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           ) : (

@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\NutritionFact;
+use App\Models\Product;
+use App\Models\ProductImage;
+use App\Observers\CatalogCacheObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -28,5 +33,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Event→notification listeners are auto-discovered from app/Listeners
         // (they type-hint their event in handle()), so no manual registration here.
+
+        // Bust cached storefront catalog reads whenever their source data changes.
+        foreach ([Product::class, Category::class, ProductImage::class, NutritionFact::class] as $model) {
+            $model::observe(CatalogCacheObserver::class);
+        }
     }
 }

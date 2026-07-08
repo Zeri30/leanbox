@@ -11,15 +11,22 @@ const GRID = "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4";
 /** Responsive product grid: 2 cols mobile → 3 tablet → 4 desktop. */
 export function ProductGrid({
   products,
+  priorityCount = 0,
   className,
 }: {
   products: Product[];
+  /** Fetch the first N cards' images at high priority (above-the-fold LCP). */
+  priorityCount?: number;
   className?: string;
 }) {
   return (
     <div className={cn(GRID, className)}>
-      {products.map((product) => (
-        <ProductCard key={product.id} {...productToCardProps(product)} />
+      {products.map((product, i) => (
+        <ProductCard
+          key={product.id}
+          {...productToCardProps(product)}
+          priority={i < priorityCount}
+        />
       ))}
     </div>
   );
