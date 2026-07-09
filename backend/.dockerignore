@@ -1,0 +1,17 @@
+# Keep the build context (and image) lean and secret-free.
+.env
+.env.*
+!.env.production.example
+vendor/
+node_modules/
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+tests/
+.git/
+.github/
+.phpunit.result.cache
+Dockerfile
+.dockerignore
+README.md

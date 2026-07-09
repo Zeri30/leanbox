@@ -1,0 +1,100 @@
+# Render Blueprint — Leanbox API (Laravel), FREE-TIER production infrastructure.
+#
+# Render's free plan only covers WEB services — background workers and cron jobs
+# are paid-only. So this free build collapses to a single free web service and
+# adapts the other pieces:
+#   - Queue    -> QUEUE_CONNECTION=sync (jobs run inline in the request; no worker)
+#   - Scheduler-> deferred (run `php artisan subscriptions:process-due` manually,
+#                or add a free daily ping via cron-job.org later)
+#
+# Tradeoffs: the free web service SLEEPS after ~15 min idle (~50s cold start on the
+# next request). Fine for a personal/portfolio deploy.
+#
+# When you later move to a paid plan, re-add a `worker` (php artisan queue:work)
+# and a `cron` (schedule: "* * * * *", php artisan schedule:run) — see the runbook.
+#
+# Stack note (per CLAUDE.md): database drivers (NO Redis), Supabase Storage for
+# images (NO Cloudinary), Supabase Postgres. Secrets (sync:false) are entered in
+# the Render dashboard and never committed.
+
+services:
+  - type: web
+    name: leanbox-api
+    runtime: docker
+    region: singapore
+    plan: free
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /up
+    autoDeploy: true
+    envVars:
+      # serversideup nginx listens on 8080; route Render traffic there.
+      - key: PORT
+        value: "8080"
+      # Free tier has no pre-deploy step, so migrate on container boot instead
+      # (serversideup runs `php artisan migrate --force` when autorun is enabled).
+      - key: AUTORUN_ENABLED
+        value: "true"
+
+      # --- app ---
+      - key: APP_NAME
+        value: Leanbox
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY            # php artisan key:generate --show
+        sync: false
+      - key: APP_URL            # the Render URL, e.g. https://leanbox-api.onrender.com
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: warning
+
+      # --- database (Supabase Postgres, session pooler :5432) ---
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+      # --- no Redis, no worker: database cache/session, sync queue ---
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      # --- images: Supabase Storage (S3-compatible), bucket leanbox-images ---
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: SUPABASE_ENDPOINT
+        sync: false
+      - key: SUPABASE_ACCESS_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_REGION
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: leanbox-images
+      - key: SUPABASE_PUBLIC_URL
+        sync: false
+
+      # --- CORS: the Vercel frontend origin (comma-separate multiple) ---
+      - key: FRONTEND_URL
+        sync: false
+
+      # --- mail: log driver for now (no SMTP needed; in-app notifications still
+      #     persist to the DB). Switch to smtp + creds when you add a provider. ---
+      - key: MAIL_MAILER
+        value: log
