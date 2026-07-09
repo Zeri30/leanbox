@@ -9,11 +9,15 @@ Per **CLAUDE.md** stack decisions (which override the blueprint docs):
 
 | Component | Service | Notes |
 |---|---|---|
-| Frontend (Next.js) | **Vercel** | zero-config; needs `NEXT_PUBLIC_API_URL` |
-| API + queue worker + scheduler | **Render** (Docker) | one image → web + worker + cron |
+| Frontend (Next.js) | **Vercel** (free) | zero-config; needs `NEXT_PUBLIC_API_URL` |
+| API | **Render web service (free)** | Docker; sleeps ~15 min idle, ~50s cold start |
+| Queue | **`sync` driver** (free) | jobs run inline — Render free has no worker |
+| Scheduler | **deferred / free cron ping** | Render free has no cron; run `subscriptions:process-due` manually or via cron-job.org |
 | Database (Postgres) | **Supabase** | session pooler, port 5432 |
 | Image storage | **Supabase Storage** | bucket `leanbox-images` (S3-compatible) — **not** Cloudinary |
-| Cache / queue / sessions | **Laravel `database` driver** | **no Redis** |
+| Cache / sessions | **Laravel `database` driver** | **no Redis** |
+
+> **Free-tier note:** Render's free plan only covers **web services** — background workers and cron jobs are paid. So this build runs one free web service with `QUEUE_CONNECTION=sync` and defers the scheduler. On a paid plan, re-add a `worker` (`php artisan queue:work`) and a `cron` (`* * * * *` → `php artisan schedule:run`) to `render.yaml`.
 
 > **Deviations from the ClickUp task text (intentional):** the task listed a *Redis instance* and *Cloudinary*. Both are superseded by CLAUDE.md — we provision neither. Auth is **Bearer-token** (`config/cors.php` has `supports_credentials => false`), so the Vercel↔Render cross-domain split needs only a CORS allowlist, no shared cookie domain.
 
@@ -31,18 +35,22 @@ Repo artifacts backing this runbook:
 3. **Storage** → create bucket **`leanbox-images`** (public). Record the public URL base for `SUPABASE_PUBLIC_URL`.
 4. **Storage → S3 access keys** → generate keys. Record `SUPABASE_ENDPOINT` (`https://<ref>.storage.supabase.co/storage/v1/s3`), `SUPABASE_ACCESS_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_REGION`.
 
-## 2. Render (API + worker + scheduler)
+## 2. Render (free web service)
 
-1. **New → Blueprint**, connect the GitHub repo (branch `main`). Render reads `render.yaml` and proposes 3 services + the `leanbox-shared` env group.
+1. **New → Blueprint**, connect the GitHub repo, **branch `develop`**. Render reads `render.yaml` and proposes 1 free web service (`leanbox-api`).
 2. Fill every `sync: false` var from step 1 plus:
    - `APP_KEY` — run `php artisan key:generate --show` locally, paste the `base64:…` value.
-   - `APP_URL` — the Render web URL (e.g. `https://leanbox-api.onrender.com`).
-   - `FRONTEND_URL` — the Vercel URL (fill after step 3; can start with the preview URL).
-   - `MAIL_*` — SMTP provider (e.g. Resend/Mailgun/Postmark SMTP).
-3. **Apply** → Render builds the image and starts `leanbox-api` (web), `leanbox-queue` (worker), `leanbox-scheduler` (cron `* * * * *`).
-   - The web service's `preDeployCommand` runs `php artisan migrate --force` before traffic shifts.
-   - Fallback if pre-deploy isn't available on your plan: open the web service **Shell** and run `php artisan migrate --force` once.
+   - `APP_URL` — the Render web URL (e.g. `https://leanbox-api.onrender.com`); can fill after first deploy.
+   - `FRONTEND_URL` — start with `http://localhost:3000`, update to the Vercel URL in step 3.
+   - `MAIL_MAILER` stays `log` for now (no SMTP required).
+3. **Apply** → Render builds the Docker image and starts `leanbox-api`.
+   - `AUTORUN_ENABLED=true` makes the container run `php artisan migrate --force` on boot (free tier has no pre-deploy step), building the schema on Supabase.
 4. Verify: `GET https://<api>/up` → 200; `GET https://<api>/api/v1/...` returns the JSON envelope.
+
+### Scheduler (free options, do later)
+Render free has no cron. The only scheduled job is `subscriptions:process-due` (daily 02:00), and recurring billing is deferred (COD), so this is low-stakes:
+- **Manual:** run `php artisan subscriptions:process-due` when needed (locally against Supabase, or via Render Shell on a paid plan).
+- **Free daily ping:** add a small token-protected route that runs the command, and schedule a daily GET from **cron-job.org** (free).
 
 ## 3. Vercel (frontend)
 
