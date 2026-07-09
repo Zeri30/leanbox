@@ -1,0 +1,147 @@
+# Render Blueprint — Leanbox API (Laravel) production infrastructure.
+#
+# One Docker image (backend/Dockerfile) backs three services:
+#   - web  : the HTTP API
+#   - worker: the queue worker  (notifications, subscription-cycle jobs)
+#   - cron : the scheduler      (cron -> `php artisan schedule:run` every minute)
+#
+# The queue worker + scheduler are REQUIRED for recurring billing & notifications.
+#
+# Stack note: per CLAUDE.md this project runs the database queue/cache/session
+# drivers (NO Redis) and stores images in Supabase Storage (NOT Cloudinary), so
+# this blueprint provisions neither Redis nor Cloudinary. Postgres is Supabase.
+#
+# Secrets (sync: false) are entered in the Render dashboard on first deploy and
+# never committed. Non-secret values are inline below.
+
+services:
+  # --------------------------------------------------------------------------
+  # HTTP API
+  # --------------------------------------------------------------------------
+  - type: web
+    name: leanbox-api
+    runtime: docker
+    region: singapore
+    plan: starter
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /up
+    # Migrations run once, before traffic shifts to the new deploy.
+    preDeployCommand: php artisan migrate --force
+    autoDeploy: true
+    envVars:
+      # serversideup nginx listens on 8080; tell Render to route there.
+      - key: PORT
+        value: "8080"
+      - fromGroup: leanbox-shared
+
+  # --------------------------------------------------------------------------
+  # Queue worker (database driver)
+  # --------------------------------------------------------------------------
+  - type: worker
+    name: leanbox-queue
+    runtime: docker
+    region: singapore
+    plan: starter
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: php artisan queue:work --tries=3 --max-time=3600 --sleep=3
+    autoDeploy: true
+    envVars:
+      - fromGroup: leanbox-shared
+
+  # --------------------------------------------------------------------------
+  # Scheduler (cron -> schedule:run every minute; Laravel decides what's due)
+  # --------------------------------------------------------------------------
+  - type: cron
+    name: leanbox-scheduler
+    runtime: docker
+    region: singapore
+    schedule: "* * * * *"
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: php artisan schedule:run
+    autoDeploy: true
+    envVars:
+      - fromGroup: leanbox-shared
+
+# ----------------------------------------------------------------------------
+# Shared environment (referenced by all three services).
+# Fill sync:false values in the Render dashboard; keep them out of git.
+# ----------------------------------------------------------------------------
+envVarGroups:
+  - name: leanbox-shared
+    envVars:
+      # --- app ---
+      - key: APP_NAME
+        value: Leanbox
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY            # `php artisan key:generate --show`
+        sync: false
+      - key: APP_URL            # https://leanbox-api.onrender.com
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: warning
+
+      # --- database (Supabase Postgres, session pooler :5432) ---
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+      # --- no Redis: everything on the database driver ---
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: CACHE_STORE
+        value: database
+
+      # --- images: Supabase Storage (S3-compatible), bucket leanbox-images ---
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: SUPABASE_ENDPOINT
+        sync: false
+      - key: SUPABASE_ACCESS_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_REGION
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: leanbox-images
+      - key: SUPABASE_PUBLIC_URL
+        sync: false
+
+      # --- CORS: the Vercel frontend origin (comma-separate multiple) ---
+      - key: FRONTEND_URL
+        sync: false
+
+      # --- mail (transactional notifications) ---
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Leanbox
